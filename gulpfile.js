@@ -5,8 +5,8 @@
 *           SETTING THEMS
 ---------------------------------------------------------------------------*/
 var setTheme = {
-    name: 'your  name theme',
-    nameDirect: 'name direct project', // имя директории проекта нужно для настройки сервера
+    name: '',
+    nameDirect: '', // имя директории проекта нужно для настройки сервера
     //  директории разработки
     jsDevDirect: 'js/',
     stylesDevDirect: 'css/',
@@ -21,8 +21,8 @@ var setTheme = {
 //  Установка базовых директорий проекта
 setTheme.src = {
     dev: 'dev/',    //  директория разработки
-    build: '../', // директория готового проекта
-    // ../wp-content/themes/name your theme
+    //build: '../wp-content/themes/' + setTheme.name + '/', // from wp-theme
+    //build: 'public/',  // from single page 
 }
 
 
