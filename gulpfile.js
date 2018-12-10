@@ -5,8 +5,8 @@
 *           SETTING THEMS
 ---------------------------------------------------------------------------*/
 var setTheme = {
-    name: 'Vt',
-    nameDirect: 'gulpWP', // имя директории проекта нужно для настройки сервера
+    name: '',
+    nameDirect: '', // имя директории проекта нужно для настройки сервера
     //  директории разработки
     jsDevDirect: 'js/',
     stylesDevDirect: 'styles/',
@@ -22,7 +22,7 @@ var setTheme = {
 setTheme.src = {
     dev: 'dev/',    //  директория разработки
     //build: '../wp-content/themes/' + setTheme.name + '/', // from wp-theme
-    //build: 'public/',  // from single page 
+    //build: '../public/',  // from single page 
 }
 
 
@@ -186,7 +186,7 @@ gulp.task('delete:js', function(callback) {
 })
 
 gulp.task('dev:js', function(callback) {
-    if (!setTheme.src.dev + setTheme.jsDevDirect === setTheme.src.build + setTheme.jsDirect) {
+    if (!(setTheme.src.dev + setTheme.jsDevDirect === setTheme.src.build + setTheme.jsDirect)) {
         return gulp.src(setTheme.src.dev + setTheme.jsDevDirect + '**/*.js')
         .pipe(cached('dev:js'))
         .pipe(plumber({errorHandler: notify.onError()}))    
@@ -197,7 +197,7 @@ gulp.task('dev:js', function(callback) {
 });
 
 gulp.task('build:js:normal', gulp.series('delete:js',function(callback){
-    if (!setTheme.src.dev + setTheme.jsDevDirect === setTheme.src.build + setTheme.jsDirect) {
+    if (!(setTheme.src.dev + setTheme.jsDevDirect === setTheme.src.build + setTheme.jsDirect)) {
         return gulp.src(setTheme.src.dev + setTheme.jsDevDirect +'**/*.js')
         .pipe(plumber({errorHandler: notify.onError()}))        
         .pipe(debug())     
@@ -207,7 +207,7 @@ gulp.task('build:js:normal', gulp.series('delete:js',function(callback){
 }));
 
 gulp.task('build:js:mini', gulp.series('delete:js',function(callback){
-    if (!setTheme.src.dev + setTheme.jsDevDirect === setTheme.src.build + setTheme.jsDirect) {
+    if (!(setTheme.src.dev + setTheme.jsDevDirect === setTheme.src.build + setTheme.jsDirect)) {
         return gulp.src(setTheme.src.dev + setTheme.jsDevDirect + '**/*.js')
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
@@ -242,7 +242,7 @@ gulp.task('server:proxy',function() {
 //          FONTS
 //  ----------------------------------------------------------
 gulp.task('build:fonts',function(callback){
-    if (!setTheme.src.dev + setTheme.fontsDevDirect === setTheme.src.build + setTheme.fontsDirect) {
+    if (!(setTheme.src.dev + setTheme.fontsDevDirect === setTheme.src.build + setTheme.fontsDirect)) {
         del.sync(setTheme.src.build + setTheme.fontsDirect, {force: true});
         console.log('-- Delete /fonts');
         return gulp.src(setTheme.src.dev + setTheme.fontsDevDirect + '**/*.*')
@@ -254,7 +254,7 @@ gulp.task('build:fonts',function(callback){
 })
 
 gulp.task('dev:fonts', function(callback) {
-    if (!setTheme.src.dev + setTheme.fontsDevDirect === setTheme.src.build + setTheme.fontsDirect) {
+    if (!(setTheme.src.dev + setTheme.fontsDevDirect === setTheme.src.build + setTheme.fontsDirect)) {
         return gulp.src(setTheme.src.dev + setTheme.fontsDevDirect + '**/*.*')
         .pipe(cached('dev:fonts'))
         .pipe(plumber({errorHandler: notify.onError()}))    
@@ -270,7 +270,7 @@ gulp.task('dev:fonts', function(callback) {
 //          html
 //  ----------------------------------------------------------
 gulp.task('build:html', function(callback) {
-    if (!setTheme.src.dev === setTheme.src.build ) {
+    if (!(setTheme.src.dev === setTheme.src.build )) {
         del.sync(setTheme.src.build + '**/*.html', {force: true});
         console.log(' -- Dalete /**/*.html --');
         return gulp.src(setTheme.src.dev + '**/*.html')
@@ -282,7 +282,7 @@ gulp.task('build:html', function(callback) {
 });
 
 gulp.task('dev:html', function(callback) {
-    if (!setTheme.src.dev === setTheme.src.build ) {
+    if (!(setTheme.src.dev === setTheme.src.build )) {
         return gulp.src(setTheme.src.dev + '**/*.html')
         .pipe(cached('dev:html'))
         .pipe(plumber({errorHandler: notify.onError()}))
@@ -297,7 +297,7 @@ gulp.task('dev:html', function(callback) {
 //          PHP
 //  ----------------------------------------------------------
 gulp.task('dev:php', function(callback) {
-    if (!setTheme.src.dev === setTheme.src.build ) {
+    if (!(setTheme.src.dev === setTheme.src.build )) {
         return gulp.src(setTheme.src.dev + '**/*.php')
         .pipe(cached('dev:php'))
         .pipe(plumber({errorHandler: notify.onError()}))
@@ -308,7 +308,7 @@ gulp.task('dev:php', function(callback) {
 });
 
 gulp.task('build:php', function(callback) {
-    if (!setTheme.src.dev === setTheme.src.build ) {
+    if (!(setTheme.src.dev === setTheme.src.build) ) {
         del.sync(setTheme.src.build + '**/*.php', {force: true});
         console.log(' -- Dalete /**/*.php --');
         return gulp.src(setTheme.src.dev + '**/*.php')
@@ -334,7 +334,7 @@ gulp.task('build:img', function() {
 });
 
 gulp.task('delete:img', function(callback) {
-    if (!setTheme.src.dev + setTheme.imgDevDirect === setTheme.src.build + setTheme.imgDirect) {
+    if (!(setTheme.src.dev + setTheme.imgDevDirect === setTheme.src.build + setTheme.imgDirect)) {
         del.sync(setTheme.src.build + setTheme.imgDirect , {force: true});
         console.log('Delate css/img');
     };    
@@ -349,7 +349,7 @@ gulp.task('reset:img',gulp.series('delete:img', 'build:img'));
 
 
 gulp.task('delete:all',function(callback){
-    if (!setTheme.src.dev  === setTheme.src.build) {
+    if (!(setTheme.src.dev  === setTheme.src.build)) {
         del.sync(setTheme.src.build + '**', {force: true});
         console.log('Delete all in direct theme');
     };    
