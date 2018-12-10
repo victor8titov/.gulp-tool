@@ -5,11 +5,11 @@
 *           SETTING THEMS
 ---------------------------------------------------------------------------*/
 var setTheme = {
-    name: '',
-    nameDirect: '', // имя директории проекта нужно для настройки сервера
+    name: 'Vt',
+    nameDirect: 'gulpWP', // имя директории проекта нужно для настройки сервера
     //  директории разработки
     jsDevDirect: 'js/',
-    stylesDevDirect: 'css/',
+    stylesDevDirect: 'styles/',
     imgDevDirect: 'img/',
     fontsDevDirect: 'fonts/',
     //  продакшн директории
@@ -31,18 +31,18 @@ const gulp =        require('gulp');
 //          Working with Files 
 const rename       = require('gulp-rename'); // Подключаем библиотеку для переименования файлов
 const del =         require('del');
-const path =        require('path');
+//const path =        require('path');
 const fs   = require('fs');
 //          Working with Streams
-const concat =      require('gulp-concat');
-const newer =       require('gulp-newer'); // Слечает дату модификации файлов в директориях откуда и куда
+//const concat =      require('gulp-concat');
+//const newer =       require('gulp-newer'); // Слечает дату модификации файлов в директориях откуда и куда
 const cached =      require('gulp-cached');
-const remember =    require('gulp-remember');
+//const remember =    require('gulp-remember');
 //          Working with Styles
-const stylus =      require('gulp-stylus');
+//const stylus =      require('gulp-stylus');
 const less =        require('gulp-less');
 const cssnano =     require('gulp-cssnano');
-const autoprefixer= require('gulp-autoprefixer');
+//const autoprefixer= require('gulp-autoprefixer');
 //      Working with JavaScript
 const uglify       = require('gulp-uglifyjs'); // Подключаем gulp-uglifyjs (для сжатия JS)
 //          Working with images
@@ -54,7 +54,7 @@ const browserSync = require('browser-sync').create();
 //          Debug plagin
 const debug =       require('gulp-debug');
 const sourcemaps = require('gulp-sourcemaps');
-var gulpif =        require('gulp-if');
+//var gulpif =        require('gulp-if');
 const notify =      require('gulp-notify'); //Выводит подсвеченный синтаксис ошибки в потоке и попап окно 
 //      Вешает обработчики событий на все этпы в потоке 
 //      что позволяет выдать сообщение на том этапе где произошла ошибка
@@ -64,7 +64,6 @@ const plumber =     require('gulp-plumber');
 //      обработчик событий
 //       multipipe
 //       stream-combinear2
-
 
 //gulp-ssh — обеспечивает возможность подключения по SSH и SFTP.
 //gulp-zip — архивирует папки и файлы.
