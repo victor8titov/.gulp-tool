@@ -10,13 +10,13 @@ var setTheme = {
     
     //  директории разработки относительно папки разработки!!!
     jsDevDirect: 'js/',
-    stylesDevDirect: 'styles/',
+    stylesDevDirect: '',
     imgDevDirect: 'img/',
     fontsDevDirect: 'fonts/',
     
     //  продакшн директории Отностительно папки продакшн!!!
     jsDirect: 'js/',
-    stylesDirect: 'styles/',
+    stylesDirect: '',
     imgDirect: 'img/',
     fontsDirect: 'fonts/',
 
@@ -29,9 +29,9 @@ var setTheme = {
 }
 //  Установка базовых директорий проекта
 setTheme.src = {
-    dev: 'dev/',    //  директория разработки
+    dev: '../',    //  директория разработки
     //build: '../wp-content/themes/' + setTheme.name + '/', // from wp-theme
-    //build: 'public/',  // from single page 
+    build: '../',  // from single page 
 }
 
 const gulp =        require('gulp');
