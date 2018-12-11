@@ -10,13 +10,13 @@ var setTheme = {
     
     //  директории разработки относительно папки разработки!!!
     jsDevDirect: 'js/',
-    stylesDevDirect: '',
+    stylesDevDirect: 'styles/',
     imgDevDirect: 'img/',
     fontsDevDirect: 'fonts/',
     
     //  продакшн директории Отностительно папки продакшн!!!
     jsDirect: 'js/',
-    stylesDirect: '',
+    stylesDirect: 'styles/',
     imgDirect: 'img/',
     fontsDirect: 'fonts/',
 
@@ -29,9 +29,9 @@ var setTheme = {
 }
 //  Установка базовых директорий проекта
 setTheme.src = {
-    dev: '../',    //  директория разработки
+    dev: 'dev/',    //  директория разработки
     //build: '../wp-content/themes/' + setTheme.name + '/', // from wp-theme
-    build: '../',  // from single page 
+    //build: 'public/',  // from single page 
 }
 
 const gulp =        require('gulp');
@@ -77,14 +77,9 @@ const plumber =     require('gulp-plumber');
 //gulp-clean и gulp-copy — соответственно очищают и копируют указанные исходники. 
 //gulp-filesize — отображает размеры файлов в удобном для чтения формате.
 
-
-
-
-
 //  --------------------------------------------
 //          OTHER TASK
 //  ------------------------------------------
-
 
 //  -----------------------------------------------------
 //  directory created
@@ -112,7 +107,6 @@ gulp.task('init:direct', function(callback) {
     });    
     callback();
 });
-
 
 //  ----------------------------------------------------------
 //          WORKING CSS LESS SASS STYLES
@@ -193,7 +187,6 @@ gulp.task('build:styles:mini',gulp.series('delete:styles','less', function() {
         .pipe(gulp.dest(setTheme.src.build + setTheme.stylesDirect));
 }));
 
-
 //  ----------------------------------------------------------
 //          WORKING JAVASCRIPT
 //  ----------------------------------------------------------
@@ -256,7 +249,6 @@ gulp.task('server:proxy',function() {
     });
     browserSync.watch('*.*').on('change', browserSync.reload);
 });
-
 
 //  ----------------------------------------------------------
 //          FONTS
