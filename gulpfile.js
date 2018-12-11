@@ -14,7 +14,7 @@ var setTheme = {
     fontsDevDirect: 'fonts/',
     //  продакшн директории
     jsDirect: 'js/',
-    stylesDirect: 'css/',
+    stylesDirect: 'styles/',
     imgDirect: 'img/',
     fontsDirect: 'fonts/'
 }
@@ -22,9 +22,13 @@ var setTheme = {
 setTheme.src = {
     dev: 'dev/',    //  директория разработки
     //build: '../wp-content/themes/' + setTheme.name + '/', // from wp-theme
-    //build: '../public/',  // from single page 
+    //build: 'public/',  // from single page 
 }
 
+//  Отслеживание одиночного less файла.
+//  при его изменениее компилирует его.
+//  работает в пре с watch: dev:watch:less | dev:watch
+//  lessOne('your name style less file');
 
 
 const gulp =        require('gulp');
@@ -115,13 +119,27 @@ gulp.task('less',function(){
     return gulp.src(setTheme.src.dev + setTheme.stylesDevDirect + '/general.less')
     .pipe(sourcemaps.init())
     .pipe(plumber({errorHandler: notify.onError()}))
-    .pipe(less())
+    .pipe(less({javascriptEnabled: true}))
     .pipe(debug())
     .pipe(rename('main.css'))
     .pipe(debug())
     .pipe(sourcemaps.write('logfile'))
     .pipe(gulp.dest(setTheme.src.dev + setTheme.stylesDevDirect));
 });
+
+var lessOneInit = false;
+function lessOne(file) {
+    lessOneInit = file;
+    return gulp.task('less:one',function(){
+                return gulp.src(setTheme.src.dev + setTheme.stylesDevDirect + file, {since: gulp.lastRun('less:one')})
+                .pipe(sourcemaps.init())
+                .pipe(plumber({errorHandler: notify.onError()}))
+                .pipe(less({javascriptEnabled: true}))
+                .pipe(debug())        
+                .pipe(sourcemaps.write('logfile'))
+                .pipe(gulp.dest(setTheme.src.dev + setTheme.stylesDevDirect));
+            });
+};
 
 gulp.task('delete:styles', function(callback) {
     if (!(setTheme.src.dev + setTheme.stylesDevDirect === setTheme.src.build + setTheme.stylesDirect)) {
@@ -344,9 +362,8 @@ gulp.task('delete:img', function(callback) {
 gulp.task('reset:img',gulp.series('delete:img', 'build:img'));
 
 //  ----------------------------------------------------------
-//             BUILD PROJECT IN DIRECT 'public'
+//             BUILD PROJECT 
 //  ----------------------------------------------------------
-
 
 gulp.task('delete:all',function(callback){
     if (!(setTheme.src.dev  === setTheme.src.build)) {
@@ -364,27 +381,11 @@ gulp.task('build:mini',gulp.series('delete:all', gulp.parallel('build:html','bui
 //  ----------------------------------------------------------
 
 
-
-
-//  ----------------------------------------------------------
-//          
-//  ----------------------------------------------------------
-
-
-
-
-//  ----------------------------------------------------------
-//          
-//  ----------------------------------------------------------
-
-
-
-
-
-
 //  ----------------------------------------------------------
 //         Developer watcher 
 //  ----------------------------------------------------------
+
+//--------------- dev:watch -----------------------------------
 
 gulp.task('dev:watch', gulp.series('less', function(){
     //  less
@@ -436,10 +437,22 @@ gulp.task('dev:watch', gulp.series('less', function(){
     });
 }));
 
-gulp.task('dev:watch:test', function() {
-   
-});
+//--------------------- dev:watch:less ----------------------------------
 
+gulp.task('dev:watch:less', gulp.series('less', function() {
+   //  less   
+   if (lessOneInit) {
+        gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect + lessOneInit, gulp.series('less:one'));
+        gulp.watch([setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less','!'+ setTheme.src.dev + setTheme.stylesDevDirect + lessOneInit], gulp.series('less', 'less:one'));
+   }
+   else {
+        gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less', gulp.series('less'));
+   }
 
+}));
+
+//  ----------------------------------------------------------
+//          
+//  ----------------------------------------------------------
 
 
