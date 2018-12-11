@@ -7,29 +7,32 @@
 var setTheme = {
     name: '',
     nameDirect: '', // имя директории проекта нужно для настройки сервера
-    //  директории разработки
+    
+    //  директории разработки относительно папки разработки!!!
     jsDevDirect: 'js/',
-    stylesDevDirect: 'styles/',
+    stylesDevDirect: '',
     imgDevDirect: 'img/',
     fontsDevDirect: 'fonts/',
-    //  продакшн директории
+    
+    //  продакшн директории Отностительно папки продакшн!!!
     jsDirect: 'js/',
-    stylesDirect: 'styles/',
+    stylesDirect: '',
     imgDirect: 'img/',
-    fontsDirect: 'fonts/'
+    fontsDirect: 'fonts/',
+
+    //  для отслеживания дополнительного less файла
+    //  при его изменениее компилирует его.
+    //  task: less:one
+    //  watch: dev:watch:less | dev:watch
+    //  lessOne: 'your file less';
+    
 }
 //  Установка базовых директорий проекта
 setTheme.src = {
-    dev: 'dev/',    //  директория разработки
+    dev: '../',    //  директория разработки
     //build: '../wp-content/themes/' + setTheme.name + '/', // from wp-theme
-    //build: 'public/',  // from single page 
+    build: '../',  // from single page 
 }
-
-//  Отслеживание одиночного less файла.
-//  при его изменениее компилирует его.
-//  работает в пре с watch: dev:watch:less | dev:watch
-//  lessOne('your name style less file');
-
 
 const gulp =        require('gulp');
 //          Working with Files 
@@ -116,7 +119,7 @@ gulp.task('init:direct', function(callback) {
 //  ----------------------------------------------------------
 
 gulp.task('less',function(){
-    return gulp.src(setTheme.src.dev + setTheme.stylesDevDirect + '/general.less')
+    return gulp.src(setTheme.src.dev + setTheme.stylesDevDirect + 'general.less')
     .pipe(sourcemaps.init())
     .pipe(plumber({errorHandler: notify.onError()}))
     .pipe(less({javascriptEnabled: true}))
@@ -127,9 +130,7 @@ gulp.task('less',function(){
     .pipe(gulp.dest(setTheme.src.dev + setTheme.stylesDevDirect));
 });
 
-var lessOneInit = false;
-function lessOne(file) {
-    lessOneInit = file;
+function lessOneInit(file) {   
     return gulp.task('less:one',function(){
                 return gulp.src(setTheme.src.dev + setTheme.stylesDevDirect + file, {since: gulp.lastRun('less:one')})
                 .pipe(sourcemaps.init())
@@ -140,7 +141,8 @@ function lessOne(file) {
                 .pipe(gulp.dest(setTheme.src.dev + setTheme.stylesDevDirect));
             });
 };
-
+if (setTheme.lessOne) lessOneInit(setTheme.lessOne);
+    
 gulp.task('delete:styles', function(callback) {
     if (!(setTheme.src.dev + setTheme.stylesDevDirect === setTheme.src.build + setTheme.stylesDirect)) {
         del.sync(setTheme.src.build + setTheme.stylesDirect +'**/*.css', {force: true});        
@@ -384,12 +386,27 @@ gulp.task('build:mini',gulp.series('delete:all', gulp.parallel('build:html','bui
 //  ----------------------------------------------------------
 //         Developer watcher 
 //  ----------------------------------------------------------
+//--------------------- dev:watch:less ----------------------------------
+
+gulp.task('dev:watch:less', gulp.series('less', function() {
+    //  less
+    if (setTheme.lessOne) {
+        lessOneInit(setTheme.lessOne);
+         gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect + setTheme.lessOne, gulp.series('less:one'));
+         gulp.watch([setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less','!'+ setTheme.src.dev + setTheme.stylesDevDirect + setTheme.lessOne], gulp.series('less', 'less:one'));
+    }
+    else {
+         gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less', gulp.series('less'));
+    } 
+ }));
+
+
 
 //--------------- dev:watch -----------------------------------
 
-gulp.task('dev:watch', gulp.series('less', function(){
+gulp.task('dev:watch', gulp.series('dev:watch:less', function(){
     //  less
-    gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less', gulp.series('less'));
+    //  look up dev:watch:less
 
     //  img
     if (! setTheme.src.dev + setTheme.imgDevDirect === setTheme.src.build + setTheme.imgDirect) {
@@ -437,19 +454,7 @@ gulp.task('dev:watch', gulp.series('less', function(){
     });
 }));
 
-//--------------------- dev:watch:less ----------------------------------
 
-gulp.task('dev:watch:less', gulp.series('less', function() {
-   //  less   
-   if (lessOneInit) {
-        gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect + lessOneInit, gulp.series('less:one'));
-        gulp.watch([setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less','!'+ setTheme.src.dev + setTheme.stylesDevDirect + lessOneInit], gulp.series('less', 'less:one'));
-   }
-   else {
-        gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less', gulp.series('less'));
-   }
-
-}));
 
 //  ----------------------------------------------------------
 //          
