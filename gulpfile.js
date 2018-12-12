@@ -296,7 +296,7 @@ gulp.task('dev:fonts', function(callback) {
 });
 
 gulp.task('fonts:convert', function() {
-    return gulp.src(setTheme.src.dev + setTheme.fontsDevDirect + '**/*.ttf')
+    return gulp.src(setTheme.src.dev + setTheme.fontsDevDirect + '*.ttf')
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
         .pipe(fontmin())
