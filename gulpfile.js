@@ -24,36 +24,48 @@ var setTheme = {
     //  при его изменениее компилирует его.
     //  task: less:one
     //  watch: dev:watch:less | dev:watch
-    //  lessOne: 'your file less';
+    //  lessOne: 'your file less',
+    lessOne: 'main.less',
     
 }
 //  Установка базовых директорий проекта
 setTheme.src = {
     dev: 'dev/',    //  директория разработки
     //build: '../wp-content/themes/' + setTheme.name + '/', // from wp-theme
-    //build: 'public',  // from single page 
+    //build: setTheme.name + '/',
+    //build: 'public/',  // from single page 
+   
 }
 
 const gulp =        require('gulp');
+
 //          Working with Files 
 const rename       = require('gulp-rename'); // Подключаем библиотеку для переименования файлов
 const del =         require('del');
 //const path =        require('path');
 const fs   = require('fs');
+
 //          Working with Streams
-//const concat =      require('gulp-concat');
+const concat =      require('gulp-concat');
 //const newer =       require('gulp-newer'); // Слечает дату модификации файлов в директориях откуда и куда
 const cached =      require('gulp-cached');
 //const remember =    require('gulp-remember');
+
 //          Working with Styles
 //const stylus =      require('gulp-stylus');
 const less =        require('gulp-less');
 const cssnano =     require('gulp-cssnano');
 //const autoprefixer= require('gulp-autoprefixer');
+
+//          Working with fonts
+const fontmin =     require('gulp-fontmin');
+
 //      Working with JavaScript
 const uglify       = require('gulp-uglifyjs'); // Подключаем gulp-uglifyjs (для сжатия JS)
+
 //          Working with images
 const imagemin =    require('gulp-imagemin');
+
 //          Browser - Sync
 const browserSync = require('browser-sync').create();
 //          Testing tool
@@ -235,7 +247,7 @@ gulp.task('build:js:mini', gulp.series('delete:js',function(callback){
 //          Browser - Sync
 //  ------------------------------------------------------------
 
-gulp.task('server:singlepage', function(){
+gulp.task('server:single', function(){
     browserSync.init({
         server: setTheme.src.dev
     });
@@ -274,10 +286,18 @@ gulp.task('dev:fonts', function(callback) {
         .pipe(gulp.dest(setTheme.src.build + setTheme.fontsDirect));
     };
     callback();
-
-
 });
 
+gulp.task('dev:fonts:convert', function() {
+    return gulp.src(setTheme.src.dev + setTheme.fontsDevDirect + '*.ttf')
+        .pipe(plumber({errorHandler: notify.onError()}))
+        .pipe(debug())
+        .pipe(fontmin())
+        .pipe(debug())
+        //.pipe(concat('fonts.css'))
+        //.pipe(debug())
+        .pipe(gulp.dest(setTheme.src.dev + setTheme.fontsDevDirect));
+});
 //  ----------------------------------------------------------
 //          html
 //  ----------------------------------------------------------
