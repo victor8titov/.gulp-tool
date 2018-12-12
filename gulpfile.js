@@ -325,7 +325,7 @@ gulp.task('fonts:convert', function() {
         .pipe(debug())
         //  раскладываем файлы по каталогам .css идет в папку со стилями.
         .pipe(gulp.dest(function(file){
-            return file.extname === ".less" ? setTheme.src.dev + setTheme.stylesDevDirect :
+            return file.extname === ".css" ? setTheme.src.dev + setTheme.stylesDevDirect :
             setTheme.src.dev + setTheme.fontsDevDirect;
         }));
         
