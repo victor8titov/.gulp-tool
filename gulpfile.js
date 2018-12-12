@@ -304,12 +304,12 @@ gulp.task('fonts:convert', function() {
         //  если получаем из потока файл расширения .css то выполним сборку в один файл fonts.css
         .pipe(gulpif(function(file){
             return file.extname === ".css";
-        }, concat('fonts.less')))
+        }, concat('fonts.css')))
         .pipe(debug())
         //  если файл взятый из потока имеет расширение .css то выплним модификацию в нем а именно
         //  отредактируем пути в файле с помощью плагина modifyCssUrls
         .pipe(gulpif(function(file){
-            return file.extname === ".less";
+            return file.extname === ".css";
         }, modifyCssUrls({
             //  запускаем функцию в которую получаем адрес из файла и корректируем его по условию
             //  условия в зависимости вложена ли папка с шрифтами в папку со стилями
