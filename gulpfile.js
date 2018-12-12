@@ -9,34 +9,39 @@ var setTheme = {
     nameDirect: '', // имя директории проекта нужно для настройки сервера
     
     //  директории разработки относительно папки разработки!!!
-    jsDevDirect: 'js/',
-    stylesDevDirect: 'styles/',
-    imgDevDirect: 'img/',
-    fontsDevDirect: 'fonts/',
+    jsDevDirect:        'js/',
+    stylesDevDirect:    'styles/',
+    imgDevDirect:       'img/',
+    fontsDevDirect:     'fonts/',
     
     //  продакшн директории Отностительно папки продакшн!!!
-    jsDirect: 'js/',
-    stylesDirect: 'styles/',
-    imgDirect: 'img/',
-    fontsDirect: 'fonts/',
+    jsDirect:           'js/',
+    stylesDirect:       'styles/',
+    imgDirect:          'img/',
+    fontsDirect:        'fonts/',
 
     //  для отслеживания дополнительного less файла
     //  при его изменениее компилирует его.
     //  task: less:one
     //  watch: dev:watch:less | dev:watch
     //  lessOne: 'your file less',
-    lessOne: 'main.less',
+    //lessOne: '.less',
     
 }
 //  Установка базовых директорий проекта
 setTheme.src = {
+    //dev: '',
     dev: 'dev/',    //  директория разработки
     //build: '../wp-content/themes/' + setTheme.name + '/', // from wp-theme
     //build: setTheme.name + '/',
-    //build: 'public/',  // from single page 
+    build: 'public/',  // from single page 
+    //build: '',
    
 }
 
+/* -------------------------------------------------------------------------
+*           INIT PLAGIN
+---------------------------------------------------------------------------*/
 const gulp =        require('gulp');
 
 //          Working with Files 
@@ -50,12 +55,14 @@ const concat =      require('gulp-concat');
 //const newer =       require('gulp-newer'); // Слечает дату модификации файлов в директориях откуда и куда
 const cached =      require('gulp-cached');
 //const remember =    require('gulp-remember');
+//const replace =      require('gulp-replace'); // Замена части данных в файле https://www.npmjs.com/package/gulp-replace
 
 //          Working with Styles
 //const stylus =      require('gulp-stylus');
 const less =        require('gulp-less');
 const cssnano =     require('gulp-cssnano');
 //const autoprefixer= require('gulp-autoprefixer');
+const modifyCssUrls = require('gulp-modify-css-urls'); // Замена урла в css файлах https://www.npmjs.com/package/gulp-modify-css-urls
 
 //          Working with fonts
 const fontmin =     require('gulp-fontmin');
@@ -73,7 +80,7 @@ const browserSync = require('browser-sync').create();
 //          Debug plagin
 const debug =       require('gulp-debug');
 const sourcemaps = require('gulp-sourcemaps');
-//var gulpif =        require('gulp-if');
+var gulpif =        require('gulp-if');
 const notify =      require('gulp-notify'); //Выводит подсвеченный синтаксис ошибки в потоке и попап окно 
 //      Вешает обработчики событий на все этпы в потоке 
 //      что позволяет выдать сообщение на том этапе где произошла ошибка
@@ -269,7 +276,7 @@ gulp.task('build:fonts',function(callback){
     if (!(setTheme.src.dev + setTheme.fontsDevDirect === setTheme.src.build + setTheme.fontsDirect)) {
         del.sync(setTheme.src.build + setTheme.fontsDirect, {force: true});
         console.log('-- Delete /fonts');
-        return gulp.src(setTheme.src.dev + setTheme.fontsDevDirect + '**/*.*')
+        return gulp.src(setTheme.src.dev + setTheme.fontsDevDirect + '*.*')
             .pipe(plumber({errorHandler: notify.onError()}))
             .pipe(debug())
             .pipe(gulp.dest(setTheme.src.build + setTheme.fontsDirect));
@@ -288,15 +295,40 @@ gulp.task('dev:fonts', function(callback) {
     callback();
 });
 
-gulp.task('dev:fonts:convert', function() {
-    return gulp.src(setTheme.src.dev + setTheme.fontsDevDirect + '*.ttf')
+gulp.task('fonts:convert', function() {
+    return gulp.src(setTheme.src.dev + setTheme.fontsDevDirect + '**/*.ttf')
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
         .pipe(fontmin())
         .pipe(debug())
-        //.pipe(concat('fonts.css'))
-        //.pipe(debug())
-        .pipe(gulp.dest(setTheme.src.dev + setTheme.fontsDevDirect));
+        //  если получаем из потока файл расширения .css то выполним сборку в один файл fonts.css
+        .pipe(gulpif(function(file){
+            return file.extname === ".css";
+        }, concat('fonts.less')))
+        .pipe(debug())
+        //  если файл взятый из потока имеет расширение .css то выплним модификацию в нем а именно
+        //  отредактируем пути в файле с помощью плагина modifyCssUrls
+        .pipe(gulpif(function(file){
+            return file.extname === ".less";
+        }, modifyCssUrls({
+            //  запускаем функцию в которую получаем адрес из файла и корректируем его по условию
+            //  условия в зависимости вложена ли папка с шрифтами в папку со стилями
+            modify: function(url) {                
+                if (setTheme.fontsDevDirect.search(setTheme.stylesDevDirect) === -1)
+                     return '../'+ setTheme.fontsDevDirect + url;
+                else {
+                    var path = setTheme.fontsDevDirect.split('/');                    
+                    return path[path.length - 2] + '/' + url;
+                }
+            }
+        })))
+        .pipe(debug())
+        //  раскладываем файлы по каталогам .css идет в папку со стилями.
+        .pipe(gulp.dest(function(file){
+            return file.extname === ".less" ? setTheme.src.dev + setTheme.stylesDevDirect :
+            setTheme.src.dev + setTheme.fontsDevDirect;
+        }));
+        
 });
 //  ----------------------------------------------------------
 //          html
