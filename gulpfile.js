@@ -5,7 +5,7 @@
 *           SETTING THEMS
 ---------------------------------------------------------------------------*/
 var setTheme = {
-    name: '',
+    name: '',   // Имя темы
     nameDirect: '', // имя директории проекта нужно для настройки сервера
     
     //  директории разработки относительно папки разработки!!!
@@ -34,8 +34,8 @@ setTheme.src = {
     dev: 'dev/',    //  директория разработки
     //build: '../wp-content/themes/' + setTheme.name + '/', // from wp-theme
     //build: setTheme.name + '/',
-    build: 'public/',  // from single page 
-    //build: '',
+    //build: 'public/',  // from single page 
+    build: 'dev/',
    
 }
 
@@ -157,7 +157,7 @@ function lessOneInit(file) {
 if (setTheme.lessOne) lessOneInit(setTheme.lessOne);
     
 gulp.task('delete:styles', function(callback) {
-    if (!(setTheme.src.dev + setTheme.stylesDevDirect === setTheme.src.build + setTheme.stylesDirect)) {
+    if (setTheme.src.dev + setTheme.stylesDevDirect !== setTheme.src.build + setTheme.stylesDirect) {
         del.sync(setTheme.src.build + setTheme.stylesDirect +'**/*.css', {force: true});        
     }
     callback();
@@ -171,7 +171,7 @@ gulp.task('delete:css', function(callback) {
 });
 
 gulp.task('build:styles:normal',gulp.series('delete:styles','less', function(callback) {
-    if (!(setTheme.src.dev + setTheme.stylesDevDirect === setTheme.src.build + setTheme.stylesDirect)) {
+    if (setTheme.src.dev + setTheme.stylesDevDirect !== setTheme.src.build + setTheme.stylesDirect) {
         gulp.src(setTheme.src.dev + '*.css')
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
@@ -187,7 +187,7 @@ gulp.task('build:styles:normal',gulp.series('delete:styles','less', function(cal
 }));
 
 gulp.task('build:styles:mini',gulp.series('delete:styles','less', function() {
-    if (!(setTheme.src.dev + setTheme.stylesDevDirect === setTheme.src.build + setTheme.stylesDirect)) {
+    if (setTheme.src.dev + setTheme.stylesDevDirect !== setTheme.src.build + setTheme.stylesDirect) {
         gulp.src(setTheme.src.dev + '*.css')
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
@@ -210,7 +210,7 @@ gulp.task('build:styles:mini',gulp.series('delete:styles','less', function() {
 //          WORKING JAVASCRIPT
 //  ----------------------------------------------------------
 gulp.task('delete:js', function(callback) {
-    if (!(setTheme.src.dev + setTheme.jsDevDirect === setTheme.src.build + setTheme.jsDirect)) {
+    if (setTheme.src.dev + setTheme.jsDevDirect !== setTheme.src.build + setTheme.jsDirect) {
         del.sync(setTheme.src.build + setTheme.jsDirect , {force: true});
         console.log('-- Delete /js --');
     }    
@@ -218,7 +218,7 @@ gulp.task('delete:js', function(callback) {
 })
 
 gulp.task('dev:js', function(callback) {
-    if (!(setTheme.src.dev + setTheme.jsDevDirect === setTheme.src.build + setTheme.jsDirect)) {
+    if (setTheme.src.dev + setTheme.jsDevDirect !== setTheme.src.build + setTheme.jsDirect) {
         return gulp.src(setTheme.src.dev + setTheme.jsDevDirect + '**/*.js')
         .pipe(cached('dev:js'))
         .pipe(plumber({errorHandler: notify.onError()}))    
@@ -229,7 +229,7 @@ gulp.task('dev:js', function(callback) {
 });
 
 gulp.task('build:js:normal', gulp.series('delete:js',function(callback){
-    if (!(setTheme.src.dev + setTheme.jsDevDirect === setTheme.src.build + setTheme.jsDirect)) {
+    if (setTheme.src.dev + setTheme.jsDevDirect !== setTheme.src.build + setTheme.jsDirect) {
         return gulp.src(setTheme.src.dev + setTheme.jsDevDirect +'**/*.js')
         .pipe(plumber({errorHandler: notify.onError()}))        
         .pipe(debug())     
@@ -239,7 +239,7 @@ gulp.task('build:js:normal', gulp.series('delete:js',function(callback){
 }));
 
 gulp.task('build:js:mini', gulp.series('delete:js',function(callback){
-    if (!(setTheme.src.dev + setTheme.jsDevDirect === setTheme.src.build + setTheme.jsDirect)) {
+    if (setTheme.src.dev + setTheme.jsDevDirect !== setTheme.src.build + setTheme.jsDirect) {
         return gulp.src(setTheme.src.dev + setTheme.jsDevDirect + '**/*.js')
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
@@ -273,7 +273,7 @@ gulp.task('server:proxy',function() {
 //          FONTS
 //  ----------------------------------------------------------
 gulp.task('build:fonts',function(callback){
-    if (!(setTheme.src.dev + setTheme.fontsDevDirect === setTheme.src.build + setTheme.fontsDirect)) {
+    if (setTheme.src.dev + setTheme.fontsDevDirect !== setTheme.src.build + setTheme.fontsDirect) {
         del.sync(setTheme.src.build + setTheme.fontsDirect, {force: true});
         console.log('-- Delete /fonts');
         return gulp.src(setTheme.src.dev + setTheme.fontsDevDirect + '*.*')
@@ -285,7 +285,7 @@ gulp.task('build:fonts',function(callback){
 })
 
 gulp.task('dev:fonts', function(callback) {
-    if (!(setTheme.src.dev + setTheme.fontsDevDirect === setTheme.src.build + setTheme.fontsDirect)) {
+    if (setTheme.src.dev + setTheme.fontsDevDirect !== setTheme.src.build + setTheme.fontsDirect) {
         return gulp.src(setTheme.src.dev + setTheme.fontsDevDirect + '**/*.*')
         .pipe(cached('dev:fonts'))
         .pipe(plumber({errorHandler: notify.onError()}))    
@@ -334,7 +334,7 @@ gulp.task('fonts:convert', function() {
 //          html
 //  ----------------------------------------------------------
 gulp.task('build:html', function(callback) {
-    if (!(setTheme.src.dev === setTheme.src.build )) {
+    if (setTheme.src.dev !== setTheme.src.build ) {
         del.sync(setTheme.src.build + '**/*.html', {force: true});
         console.log(' -- Dalete /**/*.html --');
         return gulp.src(setTheme.src.dev + '**/*.html')
@@ -346,7 +346,7 @@ gulp.task('build:html', function(callback) {
 });
 
 gulp.task('dev:html', function(callback) {
-    if (!(setTheme.src.dev === setTheme.src.build )) {
+    if (setTheme.src.dev !== setTheme.src.build) {
         return gulp.src(setTheme.src.dev + '**/*.html')
         .pipe(cached('dev:html'))
         .pipe(plumber({errorHandler: notify.onError()}))
@@ -361,7 +361,7 @@ gulp.task('dev:html', function(callback) {
 //          PHP
 //  ----------------------------------------------------------
 gulp.task('dev:php', function(callback) {
-    if (!(setTheme.src.dev === setTheme.src.build )) {
+    if (setTheme.src.dev !== setTheme.src.build ) {
         return gulp.src(setTheme.src.dev + '**/*.php')
         .pipe(cached('dev:php'))
         .pipe(plumber({errorHandler: notify.onError()}))
@@ -372,7 +372,7 @@ gulp.task('dev:php', function(callback) {
 });
 
 gulp.task('build:php', function(callback) {
-    if (!(setTheme.src.dev === setTheme.src.build) ) {
+    if (setTheme.src.dev !== setTheme.src.build) {
         del.sync(setTheme.src.build + '**/*.php', {force: true});
         console.log(' -- Dalete /**/*.php --');
         return gulp.src(setTheme.src.dev + '**/*.php')
@@ -398,7 +398,7 @@ gulp.task('build:img', function() {
 });
 
 gulp.task('delete:img', function(callback) {
-    if (!(setTheme.src.dev + setTheme.imgDevDirect === setTheme.src.build + setTheme.imgDirect)) {
+    if (setTheme.src.dev + setTheme.imgDevDirect !== setTheme.src.build + setTheme.imgDirect) {
         del.sync(setTheme.src.build + setTheme.imgDirect , {force: true});
         console.log('Delate css/img');
     };    
@@ -412,7 +412,7 @@ gulp.task('reset:img',gulp.series('delete:img', 'build:img'));
 //  ----------------------------------------------------------
 
 gulp.task('delete:all',function(callback){
-    if (!(setTheme.src.dev  === setTheme.src.build)) {
+    if (setTheme.src.dev  !== setTheme.src.build) {
         del.sync(setTheme.src.build + '**', {force: true});
         console.log('Delete all in direct theme');
     };    
@@ -441,19 +441,22 @@ gulp.task('dev:watch:less', gulp.series('less', function() {
     }
     else {
          gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less', gulp.series('less'));
-    } 
+    }
+    if (setTheme.src.build.search(/^\.\.\//is) !== -1) {
+        gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect +'**/*.{less, css}', gulp.series('build:styles:normal'));
+    }
  }));
 
 
 
 //--------------- dev:watch -----------------------------------
 
-gulp.task('dev:watch', gulp.series('dev:watch:less', function(){
+gulp.task('dev:watch', gulp.parallel('dev:watch:less', function(){
     //  less
     //  look up dev:watch:less
 
     //  img
-    if (! setTheme.src.dev + setTheme.imgDevDirect === setTheme.src.build + setTheme.imgDirect) {
+    if (setTheme.src.dev + setTheme.imgDevDirect !== setTheme.src.build + setTheme.imgDirect) {
         gulp.watch(setTheme.src.dev + setTheme.imgDevDirect + '**/*.*', gulp.series('build:img')).on('unlink', function(filepath) {           
             console.log('\t--remove file /img --');        
             delete  cached.caches['build:img'];
@@ -463,7 +466,7 @@ gulp.task('dev:watch', gulp.series('dev:watch:less', function(){
 
     //  fonts
     gulp.watch(setTheme.src.dev + setTheme.fontsDevDirect + '**/*.*', gulp.series('dev:fonts')).on('unlink', function(){
-        if (! setTheme.src.dev + setTheme.fontsDevDirect === setTheme.src.build + setTheme.fontsDirect) {
+        if (setTheme.src.dev + setTheme.fontsDevDirect !== setTheme.src.build + setTheme.fontsDirect) {
             console.log('\t--remove file fonts --');
             delete  cached.caches['dev:fonts'];        
             del.sync(setTheme.src.build + setTheme.fontsDirect, {force: true});
@@ -472,7 +475,7 @@ gulp.task('dev:watch', gulp.series('dev:watch:less', function(){
 
     //  js
     gulp.watch(setTheme.src.dev + setTheme.jsDevDirect + '**/*.js', gulp.series('dev:js')).on('unlink', function(){
-        if (! setTheme.src.dev + setTheme.jsDevDirect === setTheme.src.build + setTheme.jsDirect) {
+        if (setTheme.src.dev + setTheme.jsDevDirect !== setTheme.src.build + setTheme.jsDirect) {
             console.log('\t--remove file js --');        
             delete  cached.caches['dev:js'];
             del.sync(setTheme.src.build + setTheme.jsDirect, {force: true});
@@ -481,7 +484,7 @@ gulp.task('dev:watch', gulp.series('dev:watch:less', function(){
     
     //  php
     gulp.watch(setTheme.src.dev + '**/*.php', gulp.series('dev:php')).on('unlink', function(){
-        if (! setTheme.src.dev === setTheme.src.build ) {
+        if (setTheme.src.dev !== setTheme.src.build ) {
             console.log('\t--remove file php --');        
             delete  cached.caches['dev:php'];
             del.sync(setTheme.src.build + '**/*.php', {force: true});
@@ -490,7 +493,7 @@ gulp.task('dev:watch', gulp.series('dev:watch:less', function(){
 
     //  html
     gulp.watch(setTheme.src.dev + '**/*.html', gulp.series('dev:html')).on('unlink', function(){
-        if (! setTheme.src.dev === setTheme.src.build ) {
+        if (setTheme.src.dev !== setTheme.src.build ) {
             console.log('\t--remove file html --');        
             delete  cached.caches['dev:html'];
             del.sync(setTheme.src.build + '**/*.html', {force: true});
