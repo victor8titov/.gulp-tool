@@ -108,10 +108,10 @@ gulp.task('init:direct', function(callback) {
     const folders = [
         setTheme.src.dev,
         setTheme.src.dev + setTheme.stylesDevDirect,
-        setTheme.src.dev+ setTheme.stylesDevDirect +'/libs',
+        setTheme.src.dev+ setTheme.stylesDevDirect +'libs/',
         //'dev/css/img',           
         setTheme.src.dev+ setTheme.jsDevDirect,
-        setTheme.src.dev + setTheme.jsDevDirect +'/libs',
+        setTheme.src.dev + setTheme.jsDevDirect +'libs/',
         setTheme.src.dev + setTheme.fontsDevDirect,
         'tmp',
         setTheme.src.dev + setTheme.imgDevDirect,                
@@ -478,7 +478,7 @@ gulp.task('dev:watch', gulp.parallel('dev:watch:less', function(){
         if (setTheme.src.dev + setTheme.jsDevDirect !== setTheme.src.build + setTheme.jsDirect) {
             console.log('\t--remove file js --');        
             delete  cached.caches['dev:js'];
-            del.sync(setTheme.src.build + setTheme.jsDirect, {force: true});
+            del.sync(setTheme.src.build + setTheme.jsDirect, {force: true /*разрешение на удаление вне каталога gulp*/ });
         };    
     });
     
