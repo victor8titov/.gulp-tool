@@ -34,8 +34,8 @@ setTheme.src = {
     dev: 'dev/',    //  директория разработки
     //build: '../wp-content/themes/' + setTheme.name + '/', // from wp-theme
     //build: setTheme.name + '/',
-    //build: 'public/',  // from single page 
-    build: 'dev/',
+    build: 'public/',  // from single page 
+    //build: '',
    
 }
 
