@@ -441,9 +441,9 @@ gulp.task('dev:watch:less', gulp.series('less', function() {
     }
     else {
          gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less', gulp.series('less'));
-    }
+    }    
     if (setTheme.src.build.search(/^\.\.\//is) !== -1) {
-        gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect +'**/*.{less, css}', gulp.series('build:styles:normal'));
+        gulp.watch(setTheme.src.dev + '**/*.{less, css}', gulp.series('build:styles:normal'));
     }
  }));
 
