@@ -442,8 +442,13 @@ gulp.task('dev:watch:less', gulp.series('less', function() {
     else {
          gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less', gulp.series('less'));
     }    
-    if (setTheme.src.build.search(/^\.\.\//is) !== -1) {
-        gulp.watch(setTheme.src.dev + '**/*.{less, css}', gulp.series('build:styles:normal'));
+    if (setTheme.src.build.search(/^\.\.\//is) !== -1) {        
+        gulp.watch(setTheme.src.dev + '**/*.css', function(){
+           return gulp.src(setTheme.src.dev + '**/*.css')
+                .pipe(plumber({errorHandler: notify.onError()}))      
+                .pipe(debug())
+                .pipe(gulp.dest(setTheme.src.build));
+        });
     }
  }));
 
