@@ -113,9 +113,9 @@ gulp.task('init:direct', function(callback) {
         setTheme.src.dev+ setTheme.jsDevDirect,
         setTheme.src.dev + setTheme.jsDevDirect +'libs/',
         setTheme.src.dev + setTheme.fontsDevDirect,
-        'tmp',
+        setTheme.src.dev + 'tmp',
         setTheme.src.dev + setTheme.imgDevDirect,                
-        'model',
+        setTheme.src.dev + 'model',
         setTheme.src.build
     ];
 
@@ -388,7 +388,7 @@ gulp.task('build:php', function(callback) {
 //  ----------------------------------------------------------
 //  Optimization of images
 gulp.task('build:img', function() {    
-    return gulp.src(setTheme.src.dev + setTheme.imgDevDirect + '**/*.*')
+    return gulp.src(setTheme.src.dev + setTheme.imgDevDirect + '**/*.{jpg,png,jpeg,gif}')
         .pipe(cached('build:img'))
         .pipe(plumber({errorHandler: notify.onError()}))      
         .pipe(debug())
