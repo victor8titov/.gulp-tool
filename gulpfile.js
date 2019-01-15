@@ -5,14 +5,17 @@
 *           SETTING THEMS
 ---------------------------------------------------------------------------*/
 var setTheme = {
-    name: '',   // Имя темы
-    nameDirect: '', // имя директории проекта нужно для настройки сервера
+    name:               'xsaramps',         // Имя проекта
+    nameDirect:         'alethemes',        // имя директории 
+    url:                'http://xsaramps',  // Нужен для создания proxy сервера
     
     //  директории разработки относительно папки разработки!!!
     jsDevDirect:        'js/',
     stylesDevDirect:    'styles/',
     imgDevDirect:       'img/',
     fontsDevDirect:     'fonts/',
+    modelDevDirect:     'model/',
+    tmpDevDirect:       'tmp/',
     
     //  продакшн директории Отностительно папки продакшн!!!
     jsDirect:           'js/',
@@ -29,12 +32,15 @@ var setTheme = {
     
 }
 //  Установка базовых директорий проекта
-setTheme.src = {
+setTheme.src = {    
+    //  директория разработки
+    dev: '../dev/',    
     //dev: '',
-    dev: 'dev/',    //  директория разработки
-    //build: '../wp-content/themes/' + setTheme.name + '/', // from wp-theme
-    //build: setTheme.name + '/',
-    build: 'public/',  // from single page 
+
+    // директория для продакшина
+    build: '../public/',  // from single page 
+    //build: '../wp-content/themes/' + setTheme.nameDirect + '/', // from wp-theme
+    //build: setTheme.nameDirect + '/',
     //build: '',
    
 }
@@ -113,9 +119,9 @@ gulp.task('init:direct', function(callback) {
         setTheme.src.dev+ setTheme.jsDevDirect,
         setTheme.src.dev + setTheme.jsDevDirect +'libs/',
         setTheme.src.dev + setTheme.fontsDevDirect,
-        setTheme.src.dev + 'tmp',
+        setTheme.src.dev + setTheme.tmpDevDirect,
         setTheme.src.dev + setTheme.imgDevDirect,                
-        setTheme.src.dev + 'model',
+        setTheme.src.dev + setTheme.modelDevDirect,
         setTheme.src.build
     ];
 
@@ -263,10 +269,10 @@ gulp.task('server:single', function(){
 
 gulp.task('server:proxy',function() {
     browserSync.init({
-        poxy: 'http://'+ setTheme.nameDirect +'/',
+        poxy: setTheme.url +'/',
        
     });
-    browserSync.watch('*.*').on('change', browserSync.reload);
+    browserSync.watch(setTheme.src.dev + '**/*.*').on('change', browserSync.reload);
 });
 
 //  ----------------------------------------------------------
@@ -442,7 +448,8 @@ gulp.task('dev:watch:less', gulp.series('less', function() {
     else {
          gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less', gulp.series('less'));
     }    
-    if (setTheme.src.build.search(/^\.\.\//is) !== -1) {        
+    
+    if (setTheme.src.build.search(/^\.\.\//is) == -1) {        
         gulp.watch(setTheme.src.dev + '**/*.css', function(){
            return gulp.src(setTheme.src.dev + '**/*.css')
                 .pipe(plumber({errorHandler: notify.onError()}))      
