@@ -23,7 +23,7 @@ var setTheme = {
     fontsDirect:        'fonts/',
 
     //  для отслеживания дополнительного less файла
-    //  при его изменениее компилирует его.
+    //  при его изменениее компилирует его.    
     //  task: less:one
     //  watch: dev:watch:less | dev:watch
     //  lessOne: 'your file less',
@@ -108,7 +108,6 @@ const plumber =     require('gulp-plumber');
 //  -----------------------------------------------------
 //  directory created
 //  ----------------------------------------------------=
-
 gulp.task('init:direct', function(callback) {
     const folders = [
         setTheme.src.dev,
@@ -131,6 +130,8 @@ gulp.task('init:direct', function(callback) {
     });    
     callback();
 });
+
+gulp.task('init', gulp.series('init:direct'));
 
 //  ----------------------------------------------------------
 //          WORKING CSS LESS SASS STYLES
