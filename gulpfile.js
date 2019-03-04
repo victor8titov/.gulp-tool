@@ -22,12 +22,23 @@ var setTheme = {
     imgDirect:          'img/',
     fontsDirect:        'fonts/',
 
+    //  SETTING LESS 
+    //  Файлы стилей для компиляции в CSS
+    //  для указания нового имени файла css, заполнить свойство nameCSS
+    //  свойсво file and nameCSS могут быть строкой
+    //  example: file: 'general.less'     
+    lessFile:      {
+                        file: '',
+                        nameCSS: '',
+                    },   
+    
     //  для отслеживания дополнительного less файла
     //  при его изменениее компилирует его.    
     //  task: less:one
     //  watch: dev:watch:less | dev:watch
-    //  lessOne: 'your file less',
-    //lessOne: '.less',
+    //  example: lessOne: 'name.less',
+    
+    //  lessOne: '.less',
     
 }
 //  Установка базовых директорий проекта
@@ -137,16 +148,23 @@ gulp.task('init', gulp.series('init:direct'));
 //          WORKING CSS LESS SASS STYLES
 //  ----------------------------------------------------------
 
-gulp.task('less',function(){
-    return gulp.src(setTheme.src.dev + setTheme.stylesDevDirect + 'general.less')
-    .pipe(sourcemaps.init())
-    .pipe(plumber({errorHandler: notify.onError()}))
-    .pipe(less({javascriptEnabled: true}))
-    .pipe(debug())
-    .pipe(rename('main.css'))
-    .pipe(debug())
-    .pipe(sourcemaps.write('logfile'))
-    .pipe(gulp.dest(setTheme.src.dev + setTheme.stylesDevDirect));
+gulp.task('less',function(callback){
+    if ( setTheme.lessFile.file ) {
+        return gulp.src(setTheme.src.dev + setTheme.stylesDevDirect + setTheme.lessFile.file )
+        .pipe(sourcemaps.init())
+        .pipe(plumber({errorHandler: notify.onError()}))
+        .pipe(less({javascriptEnabled: true}))
+        .pipe(debug())
+        .pipe(gulpif( function() {
+            if ( setTheme.lessFile.nameCSS ) return true;
+            return false;
+        } , rename( setTheme.lessFile.nameCSS ) ))
+        .pipe(debug())
+        .pipe(sourcemaps.write('logfile'))
+        .pipe(gulp.dest(setTheme.src.dev + setTheme.stylesDevDirect));
+    }
+    callback();
+    
 });
 
 function lessOneInit(file) {   
@@ -443,7 +461,7 @@ gulp.task('dev:watch:less', gulp.series('less', function() {
     if (setTheme.lessOne) {
         lessOneInit(setTheme.lessOne);
          gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect + setTheme.lessOne, gulp.series('less:one'));
-         gulp.watch([setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less','!'+ setTheme.src.dev + setTheme.stylesDevDirect + setTheme.lessOne], gulp.series('less', 'less:one'));
+         gulp.watch([setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less','!'+ setTheme.src.dev + setTheme.stylesDevDirect + setTheme.lessOne], gulp.series('less'));
     }
     else {
          gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less', gulp.series('less'));
