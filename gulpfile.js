@@ -1,21 +1,20 @@
 'use strict'
 
-
 /* -------------------------------------------------------------------------
 *           SETTING THEMS
 ---------------------------------------------------------------------------*/
 var setTheme = {
     name:               '',         // Имя проекта
-    nameDirect:         '',        // имя директории 
-    url:                '',  // Нужен для создания proxy сервера
+    nameDirect:         '',         // имя директории 
+    url:                '',         // Нужен для создания proxy сервера
     
     //  директории разработки относительно папки разработки!!!
     jsDevDirect:        'js/',
     stylesDevDirect:    'styles/',
     imgDevDirect:       'img/',
     fontsDevDirect:     'fonts/',
-    modelDevDirect:     'model/',
-    tmpDevDirect:       'tmp/',
+    modelDevDirect:     '_model/',
+    tmpDevDirect:       '_tmp/',
     
     //  продакшн директории Отностительно папки продакшн!!!
     jsDirect:           'js/',
@@ -38,8 +37,8 @@ setTheme.src = {
     //dev: '',
 
     // директория для продакшина
-    build: '../public/',  // from single page 
-    //build: '../wp-content/themes/' + setTheme.nameDirect + '/', // from wp-theme
+    build: '../public/',                                            // from single page 
+    //build: '../wp-content/themes/' + setTheme.nameDirect + '/',   // from wp-theme
     //build: setTheme.nameDirect + '/',
     //build: '',
    
@@ -449,6 +448,15 @@ gulp.task('dev:watch:less', gulp.series('less', function() {
          gulp.watch(setTheme.src.dev + setTheme.stylesDevDirect +'**/*.less', gulp.series('less'));
     }    
     
+
+    /*
+    *               !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    *           Уходит в проверку папки gulp-tool если 
+    *           файл находиться вне папки gulp-tool
+    *           т.е когда условие истина
+    * 
+    */
+
     if (setTheme.src.build.search(/^\.\.\//is) == -1) {        
         gulp.watch(setTheme.src.dev + '**/*.css', function(){
            return gulp.src(setTheme.src.dev + '**/*.css')
