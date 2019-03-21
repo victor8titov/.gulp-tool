@@ -1,20 +1,30 @@
 'use strict'
-
 /* -------------------------------------------------------------------------
 *           SETTING THEMS
 ---------------------------------------------------------------------------*/
 var setTheme = {
-    name:               '',         // Имя проекта
-    nameDirect:         '',         // имя директории 
-    url:                '',         // Нужен для создания proxy сервера
+    nameDirectDevelop:  'develop',  //   Имя директории разработки                                      
+    pathDirectDevelop:  '../',      //   Путь до директории разработки
+                                    //   относительно папки .gulp-tool
+
+    nameDirectPublic:   'public',   //   Имя директории сборки проекта
+    pathDirectPublic:   '../',      //   Путь до директории сборки проекта, 
+                                    //   относительно папки .gulp-tool
+
+    /*
+    *   SETTING BROWSER SYNC
+    */
+    typeServer:         'single',   //  single || proxy                                    
+    url:                '',         //  Url сервера. Нужен для создания proxy сервера
+    
     
     //  директории разработки относительно папки разработки!!!
     jsDevDirect:        'js/',
     stylesDevDirect:    'styles/',
     imgDevDirect:       'img/',
     fontsDevDirect:     'fonts/',
-    modelDevDirect:     '_model/',
-    tmpDevDirect:       '_tmp/',
+    modelDevDirect:     '.model/',
+    tmpDevDirect:       '.tmp/',
     
     //  продакшн директории Отностительно папки продакшн!!!
     jsDirect:           'js/',
@@ -28,14 +38,14 @@ var setTheme = {
     //  свойсво file and nameCSS могут быть строкой
     //  example: file: 'general.less'     
     lessFile:      {
-                        file: '',
-                        nameCSS: '',
+                        file: 'general.less',
+                        nameCSS: 'main.css',
                     },   
     
     //  для отслеживания дополнительного less файла
     //  при его изменениее компилирует его.    
     //  task: less:one
-    //  watch: dev:watch:less | dev:watch
+    //  watch: watch:less | dev:watch
     //  example: lessOne: 'name.less',
     
     //  lessOne: '.less',
@@ -43,17 +53,12 @@ var setTheme = {
 }
 //  Установка базовых директорий проекта
 setTheme.src = {    
-    //  директория разработки
-    dev: '../dev/',    
-    //dev: '',
-
-    // директория для продакшина
-    build: '../public/',                                            // from single page 
-    //build: '../wp-content/themes/' + setTheme.nameDirect + '/',   // from wp-theme
-    //build: setTheme.nameDirect + '/',
-    //build: '',
-   
+    //  Полный путь и имя директории разработки
+    dev: setTheme.pathDirectDevelop + setTheme.nameDirectDevelop + '/',  
+    // Полный путь и имя директории сборки готового проекта
+    build: setTheme.pathDirectPublic + setTheme.nameDirectPublic +'/',
 }
+
 
 /* -------------------------------------------------------------------------
 *           INIT PLAGIN
@@ -274,25 +279,6 @@ gulp.task('build:js:mini', gulp.series('delete:js',function(callback){
     callback();    
 }));
 
-//  ------------------------------------------------------------
-//          Browser - Sync
-//  ------------------------------------------------------------
-
-gulp.task('server:single', function(){
-    browserSync.init({
-        server: setTheme.src.dev
-    });
-    browserSync.watch(setTheme.src.dev + '**/*.*').on('change', browserSync.reload);
-});
-
-gulp.task('server:proxy',function() {
-    browserSync.init({
-        poxy: setTheme.url +'/',
-       
-    });
-    browserSync.watch(setTheme.src.dev + '**/*.*').on('change', browserSync.reload);
-});
-
 //  ----------------------------------------------------------
 //          FONTS
 //  ----------------------------------------------------------
@@ -450,13 +436,76 @@ gulp.task('build:mini',gulp.series('delete:all', gulp.parallel('build:html','bui
 //     TESTING     
 //  ----------------------------------------------------------
 
+//  ------------------------------------------------------------
+//          Browser - Sync
+//  ------------------------------------------------------------
 
-//  ----------------------------------------------------------
-//         Developer watcher 
-//  ----------------------------------------------------------
-//--------------------- dev:watch:less ----------------------------------
 
-gulp.task('dev:watch:less', gulp.series('less', function() {
+gulp.task('server:dev', function(){
+
+    if (setTheme.typeServer === 'single') {
+        browserSync.init({
+            server: setTheme.src.dev
+        });
+        //browserSync.watch(setTheme.src.dev + '**/*.*').on('change', browserSync.reload);
+    } else if (setTheme.typeServer === 'proxy') {
+        browserSync.init({
+            poxy: setTheme.url +'/',
+           
+        });
+        //browserSync.watch(setTheme.src.dev + '**/*.*').on('change', browserSync.reload);
+    }
+    console.log('Task server:dev finished');
+       
+});
+
+gulp.task('server:public', function(){
+
+    if (setTheme.typeServer === 'single') {
+        browserSync.init({
+            server: setTheme.src.build
+        });
+        browserSync.watch(setTheme.src.build + '**/*.*').on('change', browserSync.reload);
+    } else if (setTheme.typeServer === 'proxy') {
+        browserSync.init({
+            poxy: setTheme.url +'/',
+           
+        });
+        browserSync.watch(setTheme.src.build + '**/*.*').on('change', browserSync.reload);
+    }
+    console.log('Task server:public finished');
+});
+
+gulp.task('server:reload', function(callback){
+    browserSync.reload();    
+    callback();
+});
+gulp.task('server:pause', function(callback){
+    browserSync.pause();
+    callback();
+});
+gulp.task('server:resume', function(callback){
+    browserSync.resume();
+    callback();
+});
+gulp.task('server:exit', function(callback){
+    browserSync.exit();
+    callback();
+});
+
+/*
+*  ----------------------------------------------------------
+*         Developer watcher 
+*  ----------------------------------------------------------
+*/
+
+/*
+*       -------------------
+*           watch:styles
+*       --------------------
+*/
+
+gulp.task('watch:styles', gulp.series('less', function() {
     //  less
     if (setTheme.lessOne) {
         lessOneInit(setTheme.lessOne);
@@ -471,7 +520,7 @@ gulp.task('dev:watch:less', gulp.series('less', function() {
     /*
     *               !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     *           Уходит в проверку папки gulp-tool если 
-    *           файл находиться вне папки gulp-tool
+    *           файл находиться Внутри папки gulp-tool
     *           т.е когда условие истина
     * 
     */
@@ -486,14 +535,12 @@ gulp.task('dev:watch:less', gulp.series('less', function() {
     }
  }));
 
-
-
-//--------------- dev:watch -----------------------------------
-
-gulp.task('dev:watch', gulp.parallel('dev:watch:less', function(){
-    //  less
-    //  look up dev:watch:less
-
+/*
+*       -------------------
+*           watch:img
+*       -------------------
+*/
+gulp.task('watch:img', function(){
     //  img
     if (setTheme.src.dev + setTheme.imgDevDirect !== setTheme.src.build + setTheme.imgDirect) {
         gulp.watch(setTheme.src.dev + setTheme.imgDevDirect + '**/*.*', gulp.series('build:img')).on('unlink', function(filepath) {           
@@ -502,7 +549,14 @@ gulp.task('dev:watch', gulp.parallel('dev:watch:less', function(){
             del.sync(setTheme.src.build + setTheme.imgDirect, {force: true});
         });
     }
+});
 
+/*
+*       -----------------------
+*           watch:fonts
+*       -----------------------
+*/
+gulp.task('watch:fonts', function() {
     //  fonts
     gulp.watch(setTheme.src.dev + setTheme.fontsDevDirect + '**/*.*', gulp.series('dev:fonts')).on('unlink', function(){
         if (setTheme.src.dev + setTheme.fontsDevDirect !== setTheme.src.build + setTheme.fontsDirect) {
@@ -511,7 +565,14 @@ gulp.task('dev:watch', gulp.parallel('dev:watch:less', function(){
             del.sync(setTheme.src.build + setTheme.fontsDirect, {force: true});
         }
     });
+});
 
+/*
+*       -----------------------
+*           watch:js
+*       -----------------------
+*/
+gulp.task('watch:js', function() {
     //  js
     gulp.watch(setTheme.src.dev + setTheme.jsDevDirect + '**/*.js', gulp.series('dev:js')).on('unlink', function(){
         if (setTheme.src.dev + setTheme.jsDevDirect !== setTheme.src.build + setTheme.jsDirect) {
@@ -520,7 +581,14 @@ gulp.task('dev:watch', gulp.parallel('dev:watch:less', function(){
             del.sync(setTheme.src.build + setTheme.jsDirect, {force: true /*разрешение на удаление вне каталога gulp*/ });
         };    
     });
-    
+});
+
+/*
+*       -----------------------
+*           watch:php
+*       -----------------------
+*/
+gulp.task('watch:php', function() {
     //  php
     gulp.watch(setTheme.src.dev + '**/*.php', gulp.series('dev:php')).on('unlink', function(){
         if (setTheme.src.dev !== setTheme.src.build ) {
@@ -529,21 +597,31 @@ gulp.task('dev:watch', gulp.parallel('dev:watch:less', function(){
             del.sync(setTheme.src.build + '**/*.php', {force: true});
         }    
     });
+});
 
+/*
+*       -----------------------
+*           watch:html
+*       -----------------------
+*/
+gulp.task('watch:html', function() {
     //  html
-    gulp.watch(setTheme.src.dev + '**/*.html', gulp.series('dev:html')).on('unlink', function(){
+    gulp.watch(setTheme.src.dev + '**/*.html', gulp.series('server:reload', 'dev:html')).on('unlink', function(){
         if (setTheme.src.dev !== setTheme.src.build ) {
             console.log('\t--remove file html --');        
             delete  cached.caches['dev:html'];
             del.sync(setTheme.src.build + '**/*.html', {force: true});
         };    
     });
-}));
+});
 
+/*
+*       -------------------
+*           develop
+*       -------------------
+*/
 
+gulp.task( 'develop', gulp.parallel( 'server:dev', 'watch:styles', 'watch:js', 'watch:fonts', 'watch:img', 'watch:html', 'watch:php' ) );
 
-//  ----------------------------------------------------------
-//          
-//  ----------------------------------------------------------
 
 
