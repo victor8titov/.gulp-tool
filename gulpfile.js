@@ -6,12 +6,12 @@ var o = {
     /*
     *   SETTING NAME FOLDER AND PATH
     */
-    nameDirectDevelop:  '',  //   Имя директории разработки                                      
-    pathDirectDevelop:  '',      //   Путь до директории разработки
+    nameDirectDevelop:  'develop',  //   Имя директории разработки                                      
+    pathDirectDevelop:  '../',      //   Путь до директории разработки
                                     //   относительно папки .gulp-tool
 
     nameDirectPublic:   'public',   //   Имя директории сборки проекта
-    pathDirectPublic:   '',      //   Путь до директории сборки проекта, 
+    pathDirectPublic:   '../',      //   Путь до директории сборки проекта, 
                                     //   относительно папки .gulp-tool
     
     //  директории относительно папки разработк и папки сборки проекта!!!
@@ -413,9 +413,11 @@ gulp.task('build:mini',gulp.series('delete:all', gulp.parallel('build:html','bui
 //     TESTING     
 //  ----------------------------------------------------------
 
-//  ------------------------------------------------------------
-//          Browser - Sync
-//  ------------------------------------------------------------
+/*
+*  ------------------------------------------------------------
+*           Browser - Sync
+*  ------------------------------------------------------------
+*/
 
 
 gulp.task('server:dev', function(){
@@ -556,7 +558,8 @@ gulp.task('watch:html', function() {
 *       -------------------
 */
 
-gulp.task( 'develop', gulp.parallel( 'server:dev', 'watch:styles', 'watch:js', 'watch:fonts', 'watch:img', 'watch:html', 'watch:php' ) );
+gulp.task( 'develop', gulp.parallel( 'server:dev', 'watch:styles', 'watch:js', 'watch:fonts', 'watch:img', 'watch:html', 'watch:php' ) 
+);
 
 
 
