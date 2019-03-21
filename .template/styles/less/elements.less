@@ -1,0 +1,298 @@
+@import "function.less";
+
+// -----------------------------------------------------------
+//      GRADIENTS
+// -----------------------------------------------------------
+.linear-gradient(@rest...) {  
+  .gradient('linear', @rest);
+    
+  //  Если используются RGBA-цвета с некоторой степенью прозрачности, то вам не 
+  //  захочется, чтобы сквозь них просматривался фоновый цвет. В таком случае 
+  //  примените сокращенную форму записи свойства background, и свойство 
+  //  background-color будет отменено (благодаря особому поведению сокращенной 
+  //  формы записи свойства background)  
+  background-color: @mix_color;
+   
+  filter: ~"progid:DXImageTransform.Microsoft.gradient (GradientType=@{gradientType}, startColorstr='@{color_start}', endColorstr='@{color_end}')"; /* IE 8-9 */
+  background: -webkit-gradient(linear,  @for_old_webkit , @list_for_old_webkit); /* Webkit (Safari/Chrome 10) */
+  background-image+: -webkit-linear-gradient(~'@{deg_for_webkit}deg', @list); /* Safari 5.1, iOS 5.0-6.1, Chrome 10-25, Android 4.0-4.3 */
+  // background-image потому что добовляет свойства repeat scroll 0% 0% transparent;
+  background: -moz-linear-gradient(~'@{deg_for_webkit}deg', @list); /* Firefox 3.6-15 */
+  background: -o-linear-gradient(~'@{deg_for_webkit}deg', @list); /* Opera 11.10+  */
+  background: -ms-linear-gradient(~'@{deg_for_webkit}deg', @list); /* IE10+ */
+  background+: linear-gradient(@deg_invert, @list); /* Opera 15+, Chrome 25+, IE 10+, Firefox 16+, Safari 6.1+, iOS 7+, Android 4.4+ */
+  
+  //  Для отображения элементов и учёта их взаимодействия между собой, 
+  //  разработчики IE внедрили в этот браузер уникальное свойство hasLayout
+  // hasLayout устанавливается автоматически, если для элемента задано одно 
+  //  из следующих свойств и значений:
+  //  description: http://htmlbook.ru/css/haslayout        
+  zoom: 1;
+  //height: 1%;/*For IE7*/ 
+}
+
+.repeating-linear-gradient (@rest...) {
+  .gradient('linear', @rest);
+  background-color: @mix_color;
+  background: -webkit-repeating-linear-gradient(~'@{deg_for_webkit}deg', @list); /* Safari 5.1 - 6.0 */
+  background: -o-repeating-linear-gradient(~'@{deg_for_webkit}deg', @list); /* Opera 11.1-12.0 */
+  background: -moz-repeating-linear-gradient(~'@{deg_for_webkit}deg', @list); /* Firefox 3.6-15 */
+  background+: repeating-linear-gradient(@deg_invert, @list); /* Стандартный синтаксис */
+}
+.radial-gradient(@rest...) {
+  .gradient('radial', @rest);  
+  background-color: extract(@rest,length(@rest));
+  background: -webkit-radial-gradient(@list); /* Safari 5.1-6.0 */
+  background: -o-radial-gradient(@list); /* Opera 11.6-12.0 */ 
+  background: -moz-radial-gradient(@list); /* Firefox 3.6-15 */
+  background: radial-gradient(@list); /* Стандартный синтаксис */
+}
+.repeating-radial-gradient(@rest...) {
+  .gradient('radial', @rest);  
+  background-color: extract(@rest,length(@rest));
+  background: -webkit-repeating-radial-gradient(@list); /* Safari 5.1-6.0 */
+  background: -o-repeating-radial-gradient(@list); /* Opera 11.6-12.0 */
+  background: -moz-repeating-radial-gradient(@list); /* Firefox 3.6-15 */
+  background: repeating-radial-gradient(@list); /* Стандартный синтаксис */
+}
+
+// -----------------------------------------------------------
+//      BORDERS & ROUNDED
+// -----------------------------------------------------------
+.border(@color: #5a5a5a) {
+  border: solid 1px @color;  
+}
+.border(@top-color, @right-color, @bottom-color, @left-color) {
+  border-top: solid 1px @top-color;
+  border-left: solid 1px @left-color;
+  border-right: solid 1px @right-color;
+  border-bottom: solid 1px @bottom-color;
+}
+
+// для задания элипсности угла форма записи 
+// ~'20px/40px'
+// это экран от компилятора less иначе поделит два значения
+.border-radius(@radius: 5px) {
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+  border-radius: @radius;
+  //  Определяет, как цвет фона или фоновая картинка должна выводиться под границами
+  //  padding-box Фон отображается внутри границ.
+  -moz-background-clip: padding; 
+  -webkit-background-clip: padding-box; 
+  background-clip: padding-box; 
+}
+.border-radius(@topright, @bottomright, @bottomleft, @topleft) {
+  -webkit-border-radius: @topright @bottomright @bottomleft @topleft;
+  -moz-border-radius: @topright @bottomright @bottomleft @topleft;
+  border-radius: @topright @bottomright @bottomleft @topleft;
+  //  Определяет, как цвет фона или фоновая картинка должна выводиться под границами
+  //  padding-box Фон отображается внутри границ.
+  -moz-background-clip: padding; 
+  -webkit-background-clip: padding-box; 
+  background-clip: padding-box; 
+}
+
+// -----------------------------------------------------------
+//      OPACITY 
+// -----------------------------------------------------------
+.opacity(@opacity: 0.5) {
+  @old_opacity: @opacity * 100;
+  filter:progid:DXImageTransform.Microsoft.Alpha(opacity=@old_opacity); /* IE 5.5+*/
+-moz-opacity: @opacity; /* Mozilla 1.6 и ниже */
+-khtml-opacity: @opacity; /* Konqueror 3.1, Safari 1.1 */
+-webkit-opacity: @opacity;
+opacity: @opacity; /* CSS3 - Mozilla 1.7b +, Firefox 0.9 +, Safari 1.2+, Opera 9+ */
+}
+
+// -----------------------------------------------------------
+//     TRANSITIONS
+// -----------------------------------------------------------
+.transition-property(@property: all) {
+  -webkit-transition-property: @property;
+  -moz-transition-property: @property;
+  -o-transition-property: @property;
+  transition-property: @property;
+ 
+}
+.transition-duration(@duration: 0.5s) {
+  -webkit-transition-duration: @duration;
+  -moz-transition-duration: @duration;
+  -o-transition-duration: @duration;
+  transition-duration: @duration;  
+}
+.transition-timing-function(@func: ease-in-out) {
+  -webkit-transition-timing-function: @func;
+  -moz-transition-timing-function:@func;
+  -o-transition-timing-function: @func;
+  transition-timing-function: @func;
+}
+.transition-delay(@delay: 500ms) {
+  -webkit-transition-delay: @delay;
+  -moz-transition-delay: @delay;
+  -o-transition-delay: @delay;
+  transition-delay: @delay;
+}
+.transition(@transition: all 500ms ease-in-out) {
+	-webkit-transition: @transition;
+	-moz-transition: @transition;	
+	-o-transition: @transition;
+	transition: @transition;
+}
+
+// -----------------------------------------------------------
+//     TRANSFORM преобразования
+// -----------------------------------------------------------
+.rotate(@deg:5deg){
+  -webkit-transform+_: rotate(@deg);
+  -moz-transform+_: rotate(@deg);
+  -o-transform+_: rotate(@deg);
+  -ms-transform+_: rotate(@deg);  // IE lt 9 
+  transform+_: rotate(@deg);  
+}
+.scale(@ratio:1.5){
+  -webkit-transform+_: scale(@ratio);
+  -moz-transform+_: scale(@ratio);
+  -o-transform+_: scale(@ratio);
+  -ms-transform+_: scale(@ratio);  // IE lt 9 
+  transform+_: scale(@ratio);   
+}
+
+.translate(@x:10px, @y:10px) {
+  -moz-transform+_: translate(@x, @y);
+  -webkit-transform+_: translate(@x, @y);
+  -o-transform+_: translate(@x, @y);
+  -ms-transform+_: translate(@x, @y);
+  transform+_: translate(@x, @y);
+}
+
+
+// -----------------------------------------------------------
+//   SHADOWS   
+// -----------------------------------------------------------
+.box-shadow(@arguments: 0 0 5px black) {
+  -webkit-box-shadow: @arguments;
+  -moz-box-shadow: @arguments;
+  box-shadow: @arguments;
+}
+.drop-shadow(@x-axis: 0, @y-axis: 1px, @blur: 2px, @alpha: 0.1) {
+  -webkit-box-shadow: @x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
+  -moz-box-shadow: @x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
+  box-shadow: @x-axis @y-axis @blur rgba(0, 0, 0, @alpha);
+}
+.inner-shadow(@horizontal:0, @vertical:1px, @blur:2px, @alpha: 0.4) {
+  -webkit-box-shadow: inset @horizontal @vertical @blur rgba(0, 0, 0, @alpha);
+  -moz-box-shadow: inset @horizontal @vertical @blur rgba(0, 0, 0, @alpha);
+  box-shadow: inset @horizontal @vertical @blur rgba(0, 0, 0, @alpha);
+}
+.shadow-gray-alpha() {
+	-webkit-box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, .3);
+	-moz-box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, .3);
+	box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, .3); 
+}
+.shadow-black-alpha() {
+    -webkit-box-shadow: 0 0 5px black;
+    -moz-box-shadow: 0 0 5px black;
+    box-shadow: 0 0 5px black;
+}
+.text-shadow(@color: #fff) {
+	text-shadow: 1px 1px 0px @color;
+}
+
+// -----------------------------------------------------------
+//    COLUMNS  
+// -----------------------------------------------------------
+
+.columns(@colwidth: 250px, @colcount: 2, @colgap: 50px, @columnRuleWidth: 1px, @columnRuleStyle: solid,  @columnRuleColor: #EEE) {
+  -moz-column-width: @colwidth;
+  -moz-column-count: @colcount;
+  -moz-column-gap: @colgap;
+  -moz-column-rule: @columnRuleWidth @columnRuleStyle @columnRuleColor;
+  
+  -webkit-column-width: @colwidth;
+  -webkit-column-count: @colcount;
+  -webkit-column-gap: @colgap;
+  -webkit-column-rule: @columnRuleWidth @columnRuleStyle @columnRuleColor;
+  
+  column-width: @colwidth;
+  column-count: @colcount;
+  column-gap: @colgap;
+  column-rule: @columnRuleWidth @columnRuleStyle @columnRuleColor;  
+}
+.column-span(@elm:all) {
+  -webkit-column-span: @elm; 
+  column-span: @elm;
+}
+// не понял назначения.
+//.nobreak {
+//	-webkit-column-break-inside:avoid;
+//	-moz-column-break-inside:avoid;
+//	-o-column-break-inside:avoid;
+//	-ms-column-break-inside:avoid;
+//	display: table;			
+//}
+
+
+// -----------------------------------------------------------
+//   FONTS   
+// -----------------------------------------------------------
+
+.font(@font-family, @size: 12px, @lineHeight: 1.2, @color: black, @weight: normal) {
+  font-family: @font-family;
+  font-size: @size;
+	font-weight: @weight;
+  line-height: @lineHeight;
+  color: @color;
+}
+
+.font-sans-serif(@size: 12px, @lineHeight: 1.2, @weight: normal) {	
+	font-size: @size;
+	font-weight: @weight;
+	line-height: @lineHeight;
+}
+.font-serif(@size: 12px, @lineHeight: 1.2, @weight: normal) {
+	font-family: "Georgia", Times New Roman, Times, serif;
+	font-size: @size;
+	font-weight: @weight;
+	line-height: @lineHeight;
+}
+.font-monospace(@size: 12px, @lineHeight: 20px, @weight: normal) {
+	font-family: "Monaco", Courier New, monospace;
+	font-size: @size;
+	font-weight: @weight;
+	line-height: @lineHeight;
+}
+
+//  Сглаживание шрифтов
+//  http://htmlbook.ru/blog/sglazhivanie-shriftov-v-safari
+.font-smoothing() {
+	-webkit-font-smoothing: antialiased;
+  -moz-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+}
+
+
+/* Clearfix
+*******************************/
+.clearFloat() {
+  &:before,&:after {
+    content:"";
+    display:table;
+  }
+  &:after {
+      clear:both;
+  }
+}
+
+.clear {
+	clear:both;
+}
+
+
+.fl{ float:left !important; }
+.fr{ float:right !important; }
+
+.l{ text-align:left; }
+.c{ text-align:center; }
+.j{ text-align:justify; }
+.r{ text-align:right; }

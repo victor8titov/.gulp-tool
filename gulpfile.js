@@ -116,9 +116,11 @@ const plumber =     require('gulp-plumber');
 //          OTHER TASK
 //  ------------------------------------------
 
-//  -----------------------------------------------------
-//  directory created
-//  ----------------------------------------------------=
+/*
+*  -----------------------------------------------------
+*           Init tasks
+*  -----------------------------------------------------
+*/
 gulp.task('init:direct', function(callback) {
     const folders = [
         o.src.dev,
@@ -141,7 +143,32 @@ gulp.task('init:direct', function(callback) {
     callback();
 });
 
-gulp.task('init', gulp.series('init:direct'));
+gulp.task('init:styles', function() {
+    if (o.typeCompilerStyles === 'less') {
+        gulp.src('.template/styles/less/**.*')
+        .pipe(plumber({errorHandler: notify.onError()}))
+        .pipe(debug())
+        .pipe(gulp.dest(o.src.dev + o.stylesDirect));
+    };
+
+    return  gulp.src('.template/styles/libs/**.*')
+    .pipe(plumber({errorHandler: notify.onError()}))
+    .pipe(debug())
+    .pipe(gulp.dest(o.src.dev + o.stylesDirect + 'libs'));
+});
+gulp.task('init:js', function() {
+    return  gulp.src('.template/js/**.*')
+    .pipe(plumber({errorHandler: notify.onError()}))
+    .pipe(debug())
+    .pipe(gulp.dest(o.src.dev + o.jsDirect));
+});
+gulp.task('init:html', function() {
+    return  gulp.src('.template/html/**.*')
+    .pipe(plumber({errorHandler: notify.onError()}))
+    .pipe(debug())
+    .pipe(gulp.dest( o.src.dev ));
+});
+gulp.task('init', gulp.series('init:direct', 'init:styles', 'init:js', 'init:html' ));
 
 //  ----------------------------------------------------------
 //          WORKING CSS LESS SASS STYLES

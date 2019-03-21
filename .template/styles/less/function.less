@@ -1,0 +1,149 @@
+
+.gradient(@type, @rest...) when (@type = 'linear') {
+    
+    @direction:  ~`(function(arr) {
+        arr = arr.split(',');   
+        arr = arr[0];
+        //arr = arr.join();    
+        return arr.replace(/^\[|\]$/g, '');
+      })('@{rest}')`; 
+     
+    @list: ~`(function(arr) {
+        arr = arr.split(',');
+        arr.shift();   
+        arr = arr.join();        
+        return arr.replace(/^\[|\]$/g, '');
+      })('@{rest}')`; 
+      
+    .direction_value(@direction);
+    .list_value(@list);
+   
+}
+.gradient(@type, @rest...) when (@type = 'radial') {
+     
+    @list: ~`(function(arr) {
+        arr = arr.split(',');
+        //arr.shift(); 
+        //arr.shift();   
+        arr = arr.join();
+        //  возможно вернется массив с [] удаляем их регулярным выражением    
+        return arr.replace(/^\[|\]$/g, '');
+      })('@{rest}')`; 
+}
+
+.direction_value (@direction) {      
+    //  Конвертируем не звисимо от типа входных значений
+    //  в угл от 0 до 360
+    @deg: ~`(function (direction) {       
+        var deg = 0;
+        var patterns = [/left/ig , /right/ig , /top/ig , /bottom/ig, /[0-9]+deg/ig];
+        if (patterns[4].test(direction)) {
+            deg = parseInt(direction);
+            if (deg > 360) deg = deg%360;
+            if (deg < 0) deg = 360 + deg;
+            return deg;            
+        }  
+        if (patterns[0].test(direction)) {
+            deg = 270;
+            if (patterns[2].test(direction)) {
+                return deg = 315;
+            }
+            else if (patterns[3].test(direction)) {
+            return deg = 225;
+            }
+        }
+        else if (patterns[1].test(direction)) {
+            deg = 90;
+            if (patterns[2].test(direction)) {
+                return deg = 45;
+            }
+            else if (patterns[3].test(direction)) {
+            return deg = 135;
+            }
+        }
+        else if (patterns[3].test(direction)) {
+        return deg = 180;
+        }
+        else if (patterns[2].test(direction)) {
+            return deg = 0;
+        }
+        return deg;
+    })('@{direction}')`;
+        
+    //  Инверсия угла для linear-gradient
+    @deg_invert: ~`(function(deg) {   
+        if (typeof deg === 'string') 
+        deg = parseInt(deg);
+        if (deg < 180) 
+        return 180 + deg+'deg';
+        return deg - 180+ 'deg';
+    })(@{deg})`;
+
+    //  Интерпретация угла в слова для старого свойства.
+    @for_old_webkit: ~`(function (deg) {
+        if (typeof deg === "string") deg = parseInt(deg);        
+        if ((deg <= (0 + 23)) || (deg >= (360 - 21))) return 'left top, left bottom';
+        if ((deg <= (45 + 23)) && (deg >= (45 - 21))) return 'right top, left bottom';
+        if ((deg <= (90 + 23)) && (deg >= (90 - 21))) return 'right top, left top';
+        if ((deg <= (135 + 23)) && (deg >= (135 - 21))) return 'right bottom, left top';
+        if ((deg <= (180 + 23)) && (deg >= (180 - 21))) return 'left bottom, left top';
+        if ((deg <= (225 + 23)) && (deg >= (225 - 21))) return 'left bottom, right top';
+        if ((deg <= (270 + 23)) && (deg >= (270 - 21))) return 'left top, right top';
+        if ((deg <= (315 + 23)) && (deg >= (315 - 21))) return 'left top, right bottom';
+        return 'left top, right top' ;
+        })(@{deg})`;
+        
+    //  Интерпретация для параметра gradientType для IE 9-5   
+    @gradientType: ~`(function(deg) {
+        if (typeof deg === 'string') 
+        deg = parseInt(deg);
+        if ((deg >= 45 && deg <= 135) || (deg >= 225 && deg <= 315)) return 1;
+        if ((deg >= 0 && deg < 45) || (deg > 315 && deg <= 360) || (deg > 135 && deg < 225)) return 0;        
+        return 1;        
+    })(@{deg})`;        
+    
+    //  Ковертация градуса из одной системы в другую а именно:
+    //  из (идем по часовой) угол по вертикальной оси в (идем против часовой) угол между горизонтальной осью
+    //  необхадим для свойства -webkit-linear-gradient иначе не сходиться градиенты по рисунку. 
+    @deg_for_webkit: 360-@deg - 90;      
+}
+.list_value (@list) {
+    @list_for_old_webkit: ~`(function(arr) {
+        arr = arr.split(',');   
+        arr.forEach(function(v, ii, aa) {return aa[ii] = 'color-stop('+ ii + ', ' + v.replace(/\s[0-9]+\%/,'','g')+') '; });
+        arr = arr.join();
+        return arr.replace(/^\[|\]$/g, '');
+        })((function() {
+        var arr = '@{list}';
+        return arr.replace(/^\[|\]$/g, '')})())`;
+        
+    .extract_rgb(@list);    
+    @color_start: rgb(extract(@array,1),extract(@array,2),extract(@array,3));
+    @color_end: rgb(extract(@array,4),extract(@array,5),extract(@array,6));
+    @mix_color: mix( @color_start, @color_end, 50%); 
+    
+}
+.extract_rgb(@str) {
+    @array: ~`(function(str) {        
+        str = str.split(',');
+        color1 = convert(str[0]);
+        color2 = convert(str[str.length -1]);
+        return (new Array).concat(color1,color2);
+    
+        function convert(one_color) {       
+            color = one_color.match(/\#[a-fA-F0-9]+/);
+            if (color[0].length >= 7) {
+                ac1 = color[0].slice(1,3);
+                ac2 = color[0].slice(3,5);
+                ac3 = color[0].slice(5,7);
+                return [ac1,ac2,ac3].map(function(v){return parseInt(v,16)});
+            }
+            if (color[0].length == 4) {
+                ac1 = color[0].slice(1,2);
+                ac2 = color[0].slice(2,3);
+                ac3 = color[0].slice(3,5);
+                return [ac1 + ac1,ac2 + ac2,ac3 + ac3].map(function(v){return parseInt(v,16);});
+            }
+        }    
+    })('@{str}')`;
+}
