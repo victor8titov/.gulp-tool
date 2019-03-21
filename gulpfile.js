@@ -125,8 +125,8 @@ gulp.task('init:direct', function(callback) {
     const folders = [
         o.src.dev,
         o.src.dev + o.stylesDirect,
-        o.src.dev+ o.stylesDirect +'libs/',            
-        o.src.dev+ o.jsDirect,
+        o.src.dev + o.stylesDirect +'libs/',            
+        o.src.dev + o.jsDirect,
         o.src.dev + o.jsDirect +'libs/',
         o.src.dev + o.fontsDirect,
         o.src.dev + o.tmpDirect,
@@ -447,7 +447,7 @@ gulp.task('build:mini',gulp.series('delete:all', gulp.parallel('build:html','bui
 */
 
 
-gulp.task('server:dev', function(){
+gulp.task('server', function(){
 
     if (o.typeServer === 'single') {
         browserSync.init({
@@ -461,7 +461,7 @@ gulp.task('server:dev', function(){
     }          
 });
 
-gulp.task('server:dev:watch', function(){
+gulp.task('server:dev', function(){
 
     if (o.typeServer === 'single') {
         browserSync.init({
@@ -585,7 +585,7 @@ gulp.task('watch:html', function() {
 *       -------------------
 */
 
-gulp.task( 'develop', gulp.parallel( 'server:dev', 'watch:styles', 'watch:js', 'watch:fonts', 'watch:img', 'watch:html', 'watch:php' ) 
+gulp.task( 'develop', gulp.parallel( 'server', 'watch:styles', 'watch:js', 'watch:fonts', 'watch:img', 'watch:html', 'watch:php' ) 
 );
 
 

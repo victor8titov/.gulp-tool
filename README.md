@@ -4,9 +4,15 @@
 
 
 ## List Task
+*   init
+*   init:styles
+*   init:js
+*   init:html
+*   init:direct
+
 *   develop
 
-*   server:dev:watch     
+*   server:dev    
 *   server:public   
 
 
