@@ -54,7 +54,8 @@ o.src = {
 }
 o.prefix = '.'; //  Префикс для папок генерируемые в разработке но не участвующие
                 //  в построение проекта и отслеживании изменений в watcher
-
+o.inOnePlace = o.src.dev === o.src.build;
+if ( o.inOnePlace ) console.log('Внимание папка разработки и прдакшн одинаковые!!'); 
 /* -------------------------------------------------------------------------
 *           INIT PLAGIN
 ---------------------------------------------------------------------------*/
@@ -112,9 +113,6 @@ const plumber =     require('gulp-plumber');
 //gulp-clean и gulp-copy — соответственно очищают и копируют указанные исходники. 
 //gulp-filesize — отображает размеры файлов в удобном для чтения формате.
 
-//  --------------------------------------------
-//          OTHER TASK
-//  ------------------------------------------
 
 /*
 *  -----------------------------------------------------
@@ -170,10 +168,20 @@ gulp.task('init:html', function() {
 });
 gulp.task('init', gulp.series('init:direct', 'init:styles', 'init:js', 'init:html' ));
 
-//  ----------------------------------------------------------
-//          WORKING CSS LESS SASS STYLES
-//  ----------------------------------------------------------
-
+/*
+*   ----------------------------------------------------------
+*
+*
+*           BLOCK OPTIMIZATION 
+*
+*
+*   ----------------------------------------------------------
+*/
+/*
+*       -------------------------
+*           Optimization Styles
+*       -------------------------
+*/
 gulp.task('less',function(){
     return gulp.src(o.src.dev + o.less.pathLess + o.less.nameLess )
     .pipe(sourcemaps.init())
@@ -188,37 +196,8 @@ gulp.task('less',function(){
     .pipe(sourcemaps.write('logfile'))
     .pipe(gulp.dest(o.src.dev + o.less.pathCss));
 });
-    
-gulp.task('delete:styles', function(callback) {
-    if (o.src.dev + o.stylesDevDirect !== o.src.build + o.stylesDirect) {
-        del.sync(o.src.build + o.stylesDirect +'**/*.css', {force: true});        
-    }
-    callback();
-    
-});
 
-gulp.task('delete:css', function(callback) {
-        del.sync([o.src.build + o.stylesDirect +'**/*.css', '!' + o.src.build + o.stylesDirect + '**/*min.css'], {force: true});            
-    callback();
-    
-});
-
-gulp.task('build:styles:normal',gulp.series('delete:styles','less', function(callback) {
-    if (o.src.dev + o.stylesDevDirect !== o.src.build + o.stylesDirect) {
-        gulp.src(o.src.dev + '*.css')
-        .pipe(plumber({errorHandler: notify.onError()}))
-        .pipe(debug())
-        .pipe(gulp.dest(o.src.build));
-     
-    
-        return gulp.src(o.src.dev + o.stylesDevDirect + '**/*.css')
-            .pipe(plumber({errorHandler: notify.onError()}))
-            .pipe(debug())
-            .pipe(gulp.dest(o.src.build + o.stylesDirect));
-    }
-    callback();   
-}));
-
+/*
 gulp.task('build:styles:mini',gulp.series('delete:styles','less', function() {
     if (o.src.dev + o.stylesDevDirect !== o.src.build + o.stylesDirect) {
         gulp.src(o.src.dev + '*.css')
@@ -227,7 +206,7 @@ gulp.task('build:styles:mini',gulp.series('delete:styles','less', function() {
         .pipe(gulp.dest(o.src.build));
     }
 
-    return gulp.src(o.src.dev + o.stylesDevDirect + '**/*.css')
+    return gulp.src(o.src.dev + o.stylesDevDirect + '**\/*.css')
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
         .pipe(cssnano())
@@ -238,42 +217,16 @@ gulp.task('build:styles:mini',gulp.series('delete:styles','less', function() {
         .pipe(debug())     
         .pipe(gulp.dest(o.src.build + o.stylesDirect));
 }));
-
-//  ----------------------------------------------------------
-//          WORKING JAVASCRIPT
-//  ----------------------------------------------------------
-gulp.task('delete:js', function(callback) {
-    if (o.src.dev + o.jsDevDirect !== o.src.build + o.jsDirect) {
-        del.sync(o.src.build + o.jsDirect , {force: true});
-        console.log('-- Delete /js --');
-    }    
-    callback();
-})
-
-gulp.task('dev:js', function(callback) {
-    if (o.src.dev + o.jsDevDirect !== o.src.build + o.jsDirect) {
-        return gulp.src(o.src.dev + o.jsDevDirect + '**/*.js')
-        .pipe(cached('dev:js'))
-        .pipe(plumber({errorHandler: notify.onError()}))    
-        .pipe(debug())
-        .pipe(gulp.dest(o.src.build + o.jsDirect));
-    }
-    callback();
-});
-
-gulp.task('build:js:normal', gulp.series('delete:js',function(callback){
-    if (o.src.dev + o.jsDevDirect !== o.src.build + o.jsDirect) {
-        return gulp.src(o.src.dev + o.jsDevDirect +'**/*.js')
-        .pipe(plumber({errorHandler: notify.onError()}))        
-        .pipe(debug())     
-        .pipe(gulp.dest(o.src.build + o.jsDirect));
-    };
-    callback();    
-}));
-
+*/
+/*
+*       ----------------------------
+*           Optimization JavaScript
+*       ----------------------------
+*/
+/*
 gulp.task('build:js:mini', gulp.series('delete:js',function(callback){
     if (o.src.dev + o.jsDevDirect !== o.src.build + o.jsDirect) {
-        return gulp.src(o.src.dev + o.jsDevDirect + '**/*.js')
+        return gulp.src(o.src.dev + o.jsDevDirect + '**\/*.js')
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
         .pipe(uglify())   
@@ -282,33 +235,13 @@ gulp.task('build:js:mini', gulp.series('delete:js',function(callback){
     };
     callback();    
 }));
-
-//  ----------------------------------------------------------
-//          FONTS
-//  ----------------------------------------------------------
-gulp.task('build:fonts',function(callback){
-    if (o.src.dev + o.fontsDevDirect !== o.src.build + o.fontsDirect) {
-        del.sync(o.src.build + o.fontsDirect, {force: true});
-        console.log('-- Delete /fonts');
-        return gulp.src(o.src.dev + o.fontsDevDirect + '*.*')
-            .pipe(plumber({errorHandler: notify.onError()}))
-            .pipe(debug())
-            .pipe(gulp.dest(o.src.build + o.fontsDirect));
-    };
-    callback();    
-})
-
-gulp.task('dev:fonts', function(callback) {
-    if (o.src.dev + o.fontsDevDirect !== o.src.build + o.fontsDirect) {
-        return gulp.src(o.src.dev + o.fontsDevDirect + '**/*.*')
-        .pipe(cached('dev:fonts'))
-        .pipe(plumber({errorHandler: notify.onError()}))    
-        .pipe(debug())
-        .pipe(gulp.dest(o.src.build + o.fontsDirect));
-    };
-    callback();
-});
-
+*/
+/*
+*       ------------------------
+*           Optimization Fonts
+*       ------------------------
+*/
+/*
 gulp.task('fonts:convert', function() {
     return gulp.src(o.src.dev + o.fontsDevDirect + '*.ttf')
         .pipe(plumber({errorHandler: notify.onError()}))
@@ -344,101 +277,204 @@ gulp.task('fonts:convert', function() {
         }));
         
 });
-//  ----------------------------------------------------------
-//          html
-//  ----------------------------------------------------------
-gulp.task('build:html', function(callback) {
-    if (o.src.dev !== o.src.build ) {
-        del.sync(o.src.build + '**/*.html', {force: true});
-        console.log(' -- Dalete /**/*.html --');
-        return gulp.src(o.src.dev + '**/*.html')
-        .pipe(plumber({errorHandler: notify.onError()}))
-        .pipe(debug())
-        .pipe(gulp.dest(o.src.build));
-    };
-    callback();    
-});
-
-gulp.task('dev:html', function(callback) {
-    if (o.src.dev !== o.src.build) {
-        return gulp.src(o.src.dev + '**/*.html')
-        .pipe(cached('dev:html'))
-        .pipe(plumber({errorHandler: notify.onError()}))
-        .pipe(debug())
-        .pipe(gulp.dest(o.src.build));
-    };
-    callback();
-});
+*/
+/*
+*       ----------------------
+*           Optimization Html
+*       ----------------------
+*/
 
 
-//  ----------------------------------------------------------
-//          PHP
-//  ----------------------------------------------------------
-gulp.task('dev:php', function(callback) {
-    if (o.src.dev !== o.src.build ) {
-        return gulp.src(o.src.dev + '**/*.php')
-        .pipe(cached('dev:php'))
-        .pipe(plumber({errorHandler: notify.onError()}))
-        .pipe(debug())
-        .pipe(gulp.dest(o.src.build));
-    };
-    callback();    
-});
+/*
+*       ----------------------
+*           Optimization PHP
+*       ----------------------
+*/
 
-gulp.task('build:php', function(callback) {
-    if (o.src.dev !== o.src.build) {
-        del.sync(o.src.build + '**/*.php', {force: true});
-        console.log(' -- Dalete /**/*.php --');
-        return gulp.src(o.src.dev + '**/*.php')
-        .pipe(plumber({errorHandler: notify.onError()}))
-        .pipe(debug())
-        .pipe(gulp.dest(o.src.build));
-    };
-    callback();        
-});
-
-//  ----------------------------------------------------------
-//             Image
-//  ----------------------------------------------------------
-//  Optimization of images
-gulp.task('build:img', function() {    
-    return gulp.src(o.src.dev + o.imgDevDirect + '**/*.{jpg,png,jpeg,gif}')
-        .pipe(cached('build:img'))
-        .pipe(plumber({errorHandler: notify.onError()}))      
+/*
+*       ----------------------
+*           Optimization IMG
+*       ----------------------
+*/
+gulp.task('optim:img:min', function(callback) {
+    var dir = '.backup_'+ Date.now();
+    gulp.src([o.src.dev+o.imgDirect+'**/*.{jpg,png,jpeg,gif,svg}', '!'+o.prefix+'*'])
+    .pipe(plumber({errorHandler: notify.onError()}))
+    .pipe(debug())
+    .pipe(gulp.dest(o.src.dev + o.imgDirect + dir));
+    
+    return gulp.src(o.src.dev + o.imgDirect + '**/*.{jpg,png,jpeg,gif,svg}')        
+        .pipe(plumber({errorHandler: notify.onError()}))  
         .pipe(debug())
         .pipe(imagemin())
         .pipe(debug())
-        .pipe(gulp.dest(o.src.build + o.imgDirect))
+        .pipe(gulp.dest(o.src.dev + o.imgDirect))
+
 });
 
+
+
+/*
+*   ----------------------------------------------------------
+*
+*
+*           BLOCK BUILD 
+*
+*
+*   ----------------------------------------------------------
+*/
+/*
+*       ------------------
+*           Build Styles
+*       ------------------
+*/    
+gulp.task('build:styles', function(callback) {
+    if ( !o.inOnePlace ) {
+        return gulp.src([o.src.dev + '**/*.css', '!**/'+o.prefix+'*'])
+        .pipe(plumber({errorHandler: notify.onError()}))
+        .pipe(debug())
+        .pipe(gulp.dest(o.src.build));    
+    }
+    callback();
+});
+gulp.task('delete:styles', function(callback) {
+    if ( !o.inOnePlace ) {
+        del.sync(o.src.build + '**/*.css', {force: true});        
+    }
+    callback();
+    
+});
+gulp.task('reset:styles', gulp.series('delete:styles','build:styles'));
+
+/*
+*       ---------------------
+*           Build JavaScript
+*       ---------------------
+*/
+gulp.task('build:js', function(callback){
+    if (!o.inOnePlace) {
+        return gulp.src([ o.src.dev + o.jsDirect +'**/*.js', '!**/'+o.prefix+'*'])
+        .pipe(plumber({errorHandler: notify.onError()}))        
+        .pipe(debug())     
+        .pipe(gulp.dest(o.src.build + o.jsDirect));
+    };
+    callback();    
+});
+gulp.task('delete:js', function(callback) {
+    if ( !o.inOnePlace ) {
+        del.sync(o.src.build + o.jsDirect , {force: true});
+        console.log('-- Delete js --');
+    }    
+    callback();
+})
+gulp.task('reset:js', gulp.series('delete:js','build:js'));
+
+/*
+*       ------------------
+*           Build Fonts
+*       ------------------
+*/
+
+gulp.task('build:fonts', function(callback){
+    if (  !o.inOnePlace ) {
+        return gulp.src([ o.src.dev + o.fontsDirect +'**/*.*', '!**/'+o.prefix+'*'])
+        .pipe(plumber({errorHandler: notify.onError()}))        
+        .pipe(debug())     
+        .pipe(gulp.dest(o.src.build + o.fontsDirect));
+    };
+    callback();    
+});
+gulp.task('delete:fonts', function(callback) {
+    if ( !o.inOnePlace ) {
+        del.sync(o.src.build + o.fontsDirect , {force: true});
+        console.log('-- Delete js --');
+    }    
+    callback();
+})
+gulp.task('reset:fonts', gulp.series('delete:fonts','build:fonts'));
+
+/*
+*       ------------------
+*           Build HTML
+*       ------------------
+*/
+gulp.task('build:html', function(callback) {
+    if ( !o.inOnePlace ) {
+        return gulp.src([o.src.dev + '**/*.html', '!**/'+o.prefix+'*'])
+        .pipe(plumber({errorHandler: notify.onError()}))
+        .pipe(debug())
+        .pipe(gulp.dest(o.src.build));    
+    }
+    callback();
+});
+gulp.task('delete:html', function(callback) {
+    if ( !o.inOnePlace ) {
+        del.sync(o.src.build + '**/*.html', {force: true});        
+    }
+    callback();
+    
+});
+gulp.task('reset:html', gulp.series('delete:html','build:html'));
+/*
+*       ------------------
+*           Build PHP
+*       ------------------
+*/
+gulp.task('build:php', function(callback) {
+    if ( !o.inOnePlace ) {
+        return gulp.src([o.src.dev + '**/*.php', '!**/'+o.prefix+'*'])
+        .pipe(plumber({errorHandler: notify.onError()}))
+        .pipe(debug())
+        .pipe(gulp.dest(o.src.build));    
+    }
+    callback();
+});
+gulp.task('delete:php', function(callback) {
+    if ( !o.inOnePlace ) {
+        del.sync(o.src.build + '**/*.php', {force: true});        
+    }
+    callback();    
+});
+gulp.task('reset:php', gulp.series('delete:php','build:php'));
+/*
+*       ------------------
+*           Build IMG
+*       ------------------
+*/
+gulp.task('build:img', function(callback) {    
+    if ( !o.inOnePlace ) {
+        return gulp.src([o.src.dev + o.imgDirect + '**\/*.{jpg,png,jpeg,gif,svg}', '!'+o.prefix+'*'])
+        .pipe(plumber({errorHandler: notify.onError()}))      
+        .pipe(debug())
+        .pipe(gulp.dest(o.src.build + o.imgDirect))
+    }
+    callback();
+});
 gulp.task('delete:img', function(callback) {
-    if (o.src.dev + o.imgDevDirect !== o.src.build + o.imgDirect) {
+    if ( !o.inOnePlace ) {
         del.sync(o.src.build + o.imgDirect , {force: true});
-        console.log('Delate css/img');
+        console.log('Delate img');
     };    
     callback();
 });
-
 gulp.task('reset:img',gulp.series('delete:img', 'build:img'));
 
-//  ----------------------------------------------------------
-//             BUILD PROJECT 
-//  ----------------------------------------------------------
 
+/*
+*       ------------------
+*           Build PROJECT
+*       ------------------
+*/
 gulp.task('delete:all',function(callback){
-    if (o.src.dev  !== o.src.build) {
+    if ( !o.inOnePlace ) {
         del.sync(o.src.build + '**', {force: true});
         console.log('Delete all in direct theme');
     };    
     callback();
 });
+gulp.task('build',gulp.series('delete:all', gulp.parallel('build:html','build:php','build:img','build:styles','build:js','build:fonts')));
 
-gulp.task('build:normal',gulp.series('delete:all', gulp.parallel('build:html','build:php','build:img','build:styles:normal','build:js:normal','build:fonts')));
 
-gulp.task('build:mini',gulp.series('delete:all', gulp.parallel('build:html','build:php','build:img','build:styles:mini','build:js:normal','build:fonts')));
-//  ----------------------------------------------------------
-//     TESTING     
-//  ----------------------------------------------------------
 
 /*
 *  ------------------------------------------------------------
