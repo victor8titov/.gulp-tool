@@ -39,7 +39,7 @@ o.typeCompilerStyles = 'less',
 //  свойсво file and nameCSS могут быть строкой
 //  example: file: 'general.less'     
 o.less =    {
-                nameLess: 'main.less',
+                nameLess: 'general.less',
                 pathLess: o.stylesDirect + '/',
                 nameCSS: 'main.css',
                 pathCss:  o.stylesDirect + '/',
@@ -52,8 +52,9 @@ o.src = {
     // Полный путь и имя директории сборки готового проекта
     build: o.pathDirectPublic + o.nameDirectPublic +'/',
 }
-o.prefix = '.'; //  Префикс для папок генерируемые в разработке но не участвующие
+o.prefix = 'a_'; //  Префикс для папок генерируемые в разработке но не участвующие
                 //  в построение проекта и отслеживании изменений в watcher
+o.exeption = '!'+o.src.dev+'**/'+o.prefix+'*/**/*.*';
 o.inOnePlace = o.src.dev === o.src.build;
 if ( o.inOnePlace ) console.log('Внимание папка разработки и прдакшн одинаковые!!'); 
 /* -------------------------------------------------------------------------
@@ -68,40 +69,49 @@ const del =         require('del');
 const fs   = require('fs');
 
 //          Working with Streams
-const concat =      require('gulp-concat');
+const concat            = require('gulp-concat');
 //const newer =       require('gulp-newer'); // Слечает дату модификации файлов в директориях откуда и куда
-const cached =      require('gulp-cached');
+const cached            = require('gulp-cached');
 //const remember =    require('gulp-remember');
 //const replace =      require('gulp-replace'); // Замена части данных в файле https://www.npmjs.com/package/gulp-replace
 
 //          Working with Styles
 //const stylus =      require('gulp-stylus');
-const less =        require('gulp-less');
-const cssnano =     require('gulp-cssnano');
-//const autoprefixer= require('gulp-autoprefixer');
-const modifyCssUrls = require('gulp-modify-css-urls'); // Замена урла в css файлах https://www.npmjs.com/package/gulp-modify-css-urls
+const less              = require('gulp-less');
+const cssnano           = require('gulp-cssnano');
+//const autoprefixer      = require('gulp-autoprefixer');
+const modifyCssUrls     = require('gulp-modify-css-urls'); // Замена урла в css файлах https://www.npmjs.com/package/gulp-modify-css-urls
+const csslint           = require('gulp-csslint'); // Инструмент поиска и показа ошибок в коде css
+const uncss             = require('gulp-uncss');
+const postcss           = require('gulp-postcss');
+const autoprefixer      = require('autoprefixer');
 
 //          Working with fonts
 const fontmin =     require('gulp-fontmin');
 
 //      Working with JavaScript
-const uglify       = require('gulp-uglifyjs'); // Подключаем gulp-uglifyjs (для сжатия JS)
+const uglify            = require('gulp-uglifyjs'); // Подключаем gulp-uglifyjs (для сжатия JS)
 
 //          Working with images
-const imagemin =    require('gulp-imagemin');
+const imagemin          = require('gulp-imagemin');
+const spritesmith       = require('gulp.spritesmith'); // https://www.npmjs.com/package/gulp.spritesmith
+const svgSprite         = require('gulp-svg-sprite'); // https://www.npmjs.com/package/gulp-svg-sprite
 
 //          Browser - Sync
-const browserSync = require('browser-sync').create();
+const browserSync       = require('browser-sync').create();
 //          Testing tool
+const htmlhint          = require('gulp-htmlhint');
+const htmlmin           = require('gulp-htmlmin');
 
 //          Debug plagin
-const debug =       require('gulp-debug');
-const sourcemaps = require('gulp-sourcemaps');
-var gulpif =        require('gulp-if');
-const notify =      require('gulp-notify'); //Выводит подсвеченный синтаксис ошибки в потоке и попап окно 
+const debug             = require('gulp-debug');
+const sourcemaps        = require('gulp-sourcemaps');
+const gulpif              = require('gulp-if');
+const notify            = require('gulp-notify'); //Выводит подсвеченный синтаксис ошибки в потоке и попап окно 
 //      Вешает обработчики событий на все этпы в потоке 
 //      что позволяет выдать сообщение на том этапе где произошла ошибка
-const plumber =     require('gulp-plumber');
+const plumber           = require('gulp-plumber');
+const zip               = require('gulp-zip');
 //     еще пару дебагеров
 //      объединяет потоки в один что позволяет повесть на него один стандартный 
 //      обработчик событий
@@ -196,17 +206,13 @@ gulp.task('less',function(){
     .pipe(sourcemaps.write('logfile'))
     .pipe(gulp.dest(o.src.dev + o.less.pathCss));
 });
-
-/*
-gulp.task('build:styles:mini',gulp.series('delete:styles','less', function() {
-    if (o.src.dev + o.stylesDevDirect !== o.src.build + o.stylesDirect) {
-        gulp.src(o.src.dev + '*.css')
-        .pipe(plumber({errorHandler: notify.onError()}))
-        .pipe(debug())
-        .pipe(gulp.dest(o.src.build));
-    }
-
-    return gulp.src(o.src.dev + o.stylesDevDirect + '**\/*.css')
+gulp.task('optim:styles:delMin', function(callback){
+    del.sync( [ o.src.dev + '**/*.min.css' , o.exeption], {force: true});
+    console.log('-- Delete all *.min.css --');
+    callback();
+});
+gulp.task('optim:styles:min', gulp.series( 'optim:styles:delMin', function() {
+    return gulp.src( [o.src.dev + '**/*.css', o.exeption] )
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
         .pipe(cssnano())
@@ -215,35 +221,80 @@ gulp.task('build:styles:mini',gulp.series('delete:styles','less', function() {
             path.basename += '.min'
         }))   
         .pipe(debug())     
-        .pipe(gulp.dest(o.src.build + o.stylesDirect));
+        .pipe( gulp.dest(o.src.dev) );
 }));
-*/
+gulp.task('optim:styles:csslint', function(callback){
+    gulp.src([o.src.dev + o.stylesDirect + '*.css', o.exeption])
+        .pipe(plumber({errorHandler: notify.onError()}))
+        .pipe(debug())
+        .pipe(csslint())
+        .pipe(csslint.formatter());
+        
+    callback();
+});
+
+// лучшее решение для оптимизации CSS файлов. Плагин
+// анализирует HTML код и находит все неиспользуемые и продублированные
+// стили
+gulp.task('optim:styles:uncss', function () {
+    var dir = o.prefix+'uncss_'+ Date.now();
+    gulp.src( [o.src.dev + o.stylesDirect + '*.css', o.exeption] )    
+    .pipe(plumber({errorHandler: notify.onError()}))
+    .pipe(debug())
+    .pipe(gulp.dest(o.src.dev + o.stylesDirect + dir));
+    
+    return gulp.src([o.src.dev + o.stylesDirect + '*.css', o.exeption])
+        .pipe(uncss({
+            html: [ o.src.dev + '**/*.html', o.exeption ]
+        }))
+        .pipe(gulp.dest(o.src.dev + o.stylesDirect));
+});
+// один из самых полезных плагинов, который автоматически 
+// расставляет префиксы к CSS свойствам, исходя из статистики ca
+// Важно сказать, что Автопрефиксер это лишь один из множества дополнений в рамках проекта PostCSS от Злых Марсиан.
+gulp.task('optim:styles:autoprefixer', function () {
+    var dir = o.prefix+'autoprefixer_'+ Date.now();
+    gulp.src( [o.src.dev + o.stylesDirect + '*.css', o.exeption] )    
+    .pipe(plumber({errorHandler: notify.onError()}))
+    .pipe(debug())
+    .pipe(gulp.dest(o.src.dev + o.stylesDirect + dir));
+
+
+    return gulp.src( [o.src.dev + o.stylesDirect + '*.css', o.exeption] )
+        //.pipe(sourcemaps.init())
+        .pipe(postcss([ autoprefixer({
+            browsers: ['cover 99.5%']
+        }) ]))
+        //.pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest( o.src.dev + o.stylesDirect ));
+});
 /*
 *       ----------------------------
 *           Optimization JavaScript
 *       ----------------------------
 */
-/*
-gulp.task('build:js:mini', gulp.series('delete:js',function(callback){
-    if (o.src.dev + o.jsDevDirect !== o.src.build + o.jsDirect) {
-        return gulp.src(o.src.dev + o.jsDevDirect + '**\/*.js')
-        .pipe(plumber({errorHandler: notify.onError()}))
-        .pipe(debug())
-        .pipe(uglify())   
-        .pipe(debug())     
-        .pipe(gulp.dest(o.src.build + o.jsDirect));
-    };
-    callback();    
-}));
-*/
+
+gulp.task('optim:js:min', function(callback){
+    
+
+    return gulp.src( [ o.src.dev + o.jsDirect +'*.js', o.exeption] )
+    .pipe(plumber({errorHandler: notify.onError()}))
+    .pipe(debug())
+    .pipe(uglify())
+    .pipe(rename(function(path) {
+        path.basename = 'main.min'
+    }))      
+    .pipe(debug())     
+    .pipe(gulp.dest(o.src.dev + o.jsDirect));
+});
+
 /*
 *       ------------------------
 *           Optimization Fonts
 *       ------------------------
 */
-/*
-gulp.task('fonts:convert', function() {
-    return gulp.src(o.src.dev + o.fontsDevDirect + '*.ttf')
+gulp.task('optim:fonts:convert', function() {
+    return gulp.src( [o.src.dev + o.fontsDirect + '*.ttf', o.exeption] )
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
         .pipe(fontmin())
@@ -261,10 +312,10 @@ gulp.task('fonts:convert', function() {
             //  запускаем функцию в которую получаем адрес из файла и корректируем его по условию
             //  условия в зависимости вложена ли папка с шрифтами в папку со стилями
             modify: function(url) {                
-                if (o.fontsDevDirect.search(o.stylesDevDirect) === -1)
-                     return '../'+ o.fontsDevDirect + url;
+                if (o.fontsDirect.search( o.stylesDirect ) === -1)
+                     return '../'+ o.fontsDirect + url;
                 else {
-                    var path = o.fontsDevDirect.split('/');                    
+                    var path = o.fontsDirect.split('/');                    
                     return path[path.length - 2] + '/' + url;
                 }
             }
@@ -272,18 +323,59 @@ gulp.task('fonts:convert', function() {
         .pipe(debug())
         //  раскладываем файлы по каталогам .css идет в папку со стилями.
         .pipe(gulp.dest(function(file){
-            return file.extname === ".css" ? o.src.dev + o.stylesDevDirect :
-            o.src.dev + o.fontsDevDirect;
+            return file.extname === ".css" ? o.src.dev + o.stylesDirect :
+            o.src.dev + o.fontsDirect;
         }));
         
 });
-*/
+
 /*
 *       ----------------------
 *           Optimization Html
 *       ----------------------
 */
+gulp.task('optim:html:min', function() {
+    var dir = o.prefix+'htmlmin_'+ Date.now();
+    gulp.src( [o.src.dev + '**/*.html', o.exeption] )    
+    .pipe(plumber({errorHandler: notify.onError()}))
+    .pipe(debug())
+    .pipe(gulp.dest(o.src.dev + dir));
 
+    return gulp.src([o.src.dev + '**/*.html', o.exeption])
+      .pipe(htmlmin({ collapseWhitespace: true }))
+      .pipe(gulp.dest(o.src.dev));
+  });
+gulp.task('optim:html:hint', function(callback){
+    return gulp.src( [o.src.dev + '**/*.html', o.exeption] )
+        .pipe( htmlhint({
+            "tagname-lowercase": true,
+            "attr-lowercase": true,
+            "attr-value-double-quotes": true,
+            "attr-value-not-empty": false,
+            "attr-no-duplication": true,
+            "doctype-first": true,
+            "tag-pair": true,
+            "empty-tag-not-self-closed": true,
+            "spec-char-escape": true,
+            "id-unique": true,
+            "src-not-empty": true,
+            "title-require": true,
+            "alt-require": true,
+            "doctype-html5": true,
+            "id-class-value": "dash",
+            "style-disabled": true,
+            "inline-style-disabled": true,
+            "inline-script-disabled": true,
+            "space-tab-mixed-disabled": "space",
+            "id-class-ad-disabled": true,
+            "href-abs-or-rel": true,
+            "attr-unsafe-chars": true,
+            "head-script-disabled": false
+          }
+          ) )
+        .pipe(htmlhint.reporter())
+        .pipe(htmlhint.failOnError({ suppress: true }))
+});
 
 /*
 *       ----------------------
@@ -297,13 +389,13 @@ gulp.task('fonts:convert', function() {
 *       ----------------------
 */
 gulp.task('optim:img:min', function(callback) {
-    var dir = '.backup_'+ Date.now();
-    gulp.src([o.src.dev+o.imgDirect+'**/*.{jpg,png,jpeg,gif,svg}', '!'+o.prefix+'*'])
+    var dir = o.prefix+ Date.now();
+    gulp.src([o.src.dev+o.imgDirect+'**/*.{jpg,png,jpeg,gif,svg}', o.exeption])
     .pipe(plumber({errorHandler: notify.onError()}))
     .pipe(debug())
     .pipe(gulp.dest(o.src.dev + o.imgDirect + dir));
     
-    return gulp.src(o.src.dev + o.imgDirect + '**/*.{jpg,png,jpeg,gif,svg}')        
+    return gulp.src([o.src.dev+o.imgDirect+'**/*.{jpg,png,jpeg,gif,svg}', o.exeption])        
         .pipe(plumber({errorHandler: notify.onError()}))  
         .pipe(debug())
         .pipe(imagemin())
@@ -312,7 +404,49 @@ gulp.task('optim:img:min', function(callback) {
 
 });
 
+gulp.task('optim:img:spritePng', function (callback) {
+    var spriteData = 
+        gulp.src( [o.src.dev+o.imgDirect+'spritePng/*.{png,jpeg,jpg}', o.exeption] ) // путь, откуда берем картинки для спрайта
+            .pipe(spritesmith({
+                imgName: 'sprite.png',
+                imgPath: '../'+o.imgDirect+'sprite.png',
+                cssName: 'spritePng.less',
+                algorithm: 'binary-tree',
+                cssFormat: 'less',
 
+            }))
+            .pipe(plumber({errorHandler: notify.onError()}))
+            .pipe(debug());
+
+    spriteData.img.pipe(gulp.dest(o.src.dev + o.imgDirect)); // путь, куда сохраняем картинку
+    spriteData.css.pipe(gulp.dest(o.src.dev+o.stylesDirect)); // путь, куда сохраняем стили
+    callback();
+});
+gulp.task('optim:img:spriteSvg', function () {
+    return gulp.src( [o.src.dev+o.imgDirect+'spriteSvg/*.svg', o.exeption] ) // svg files for sprite
+        .pipe(svgSprite({            
+                mode: {                    
+                    css: {
+                        dest: '.',
+                        sprite: "sprite.svg",  //sprite file name
+                        render: {
+                            css: true,
+                        }  
+                    },                                      
+                },       
+            }
+        ))
+        .pipe(plumber({errorHandler: notify.onError()}))
+        .pipe(debug())
+        .pipe(rename(function(path) {
+            if (path.extname === ".css")
+            path.basename += 'SVG';
+        })) 
+        .pipe(gulp.dest(function(file){
+            return file.extname === ".css" ? o.src.dev + o.stylesDirect :
+            o.src.dev + o.imgDirect;
+        }));
+});
 
 /*
 *   ----------------------------------------------------------
@@ -330,7 +464,7 @@ gulp.task('optim:img:min', function(callback) {
 */    
 gulp.task('build:styles', function(callback) {
     if ( !o.inOnePlace ) {
-        return gulp.src([o.src.dev + '**/*.css', '!**/'+o.prefix+'*'])
+        return gulp.src([o.src.dev + '**/*.css', o.exeption])
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
         .pipe(gulp.dest(o.src.build));    
@@ -342,10 +476,13 @@ gulp.task('delete:styles', function(callback) {
         del.sync(o.src.build + '**/*.css', {force: true});        
     }
     callback();
-    
 });
+gulp.task('build:styles:zip', function() {
+    return gulp.src( [o.src.dev+o.stylesDirect+'**/*.*', o.exeption, '!'+o.src.dev+o.stylesDirect+'*.min.js'])
+         .pipe(zip('styles.zip'))
+         .pipe(gulp.dest(o.src.build+o.stylesDirect))
+ });
 gulp.task('reset:styles', gulp.series('delete:styles','build:styles'));
-
 /*
 *       ---------------------
 *           Build JavaScript
@@ -353,7 +490,7 @@ gulp.task('reset:styles', gulp.series('delete:styles','build:styles'));
 */
 gulp.task('build:js', function(callback){
     if (!o.inOnePlace) {
-        return gulp.src([ o.src.dev + o.jsDirect +'**/*.js', '!**/'+o.prefix+'*'])
+        return gulp.src([o.src.dev + o.jsDirect +'**/*.js', o.exeption])
         .pipe(plumber({errorHandler: notify.onError()}))        
         .pipe(debug())     
         .pipe(gulp.dest(o.src.build + o.jsDirect));
@@ -366,7 +503,12 @@ gulp.task('delete:js', function(callback) {
         console.log('-- Delete js --');
     }    
     callback();
-})
+});
+gulp.task('build:js:zip', function() {
+    return gulp.src( [o.src.dev+o.jsDirect+'**/*.*', o.exeption, '!'+o.src.dev+o.jsDirect+'*.min.js'] )
+         .pipe(zip('js.zip'))
+         .pipe(gulp.dest(o.src.build+o.jsDirect))
+ });
 gulp.task('reset:js', gulp.series('delete:js','build:js'));
 
 /*
@@ -377,7 +519,7 @@ gulp.task('reset:js', gulp.series('delete:js','build:js'));
 
 gulp.task('build:fonts', function(callback){
     if (  !o.inOnePlace ) {
-        return gulp.src([ o.src.dev + o.fontsDirect +'**/*.*', '!**/'+o.prefix+'*'])
+        return gulp.src([ o.src.dev + o.fontsDirect +'**/*.*', o.exeption])
         .pipe(plumber({errorHandler: notify.onError()}))        
         .pipe(debug())     
         .pipe(gulp.dest(o.src.build + o.fontsDirect));
@@ -400,7 +542,7 @@ gulp.task('reset:fonts', gulp.series('delete:fonts','build:fonts'));
 */
 gulp.task('build:html', function(callback) {
     if ( !o.inOnePlace ) {
-        return gulp.src([o.src.dev + '**/*.html', '!**/'+o.prefix+'*'])
+        return gulp.src([o.src.dev + '**/*.html', o.exeption])
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
         .pipe(gulp.dest(o.src.build));    
@@ -422,7 +564,7 @@ gulp.task('reset:html', gulp.series('delete:html','build:html'));
 */
 gulp.task('build:php', function(callback) {
     if ( !o.inOnePlace ) {
-        return gulp.src([o.src.dev + '**/*.php', '!**/'+o.prefix+'*'])
+        return gulp.src([o.src.dev + '**/*.php', o.exeption])
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
         .pipe(gulp.dest(o.src.build));    
@@ -443,7 +585,7 @@ gulp.task('reset:php', gulp.series('delete:php','build:php'));
 */
 gulp.task('build:img', function(callback) {    
     if ( !o.inOnePlace ) {
-        return gulp.src([o.src.dev + o.imgDirect + '**\/*.{jpg,png,jpeg,gif,svg}', '!'+o.prefix+'*'])
+        return gulp.src([o.src.dev + o.imgDirect + '**/*.{jpg,png,jpeg,gif,svg}', o.exeption])
         .pipe(plumber({errorHandler: notify.onError()}))      
         .pipe(debug())
         .pipe(gulp.dest(o.src.build + o.imgDirect))
@@ -458,8 +600,6 @@ gulp.task('delete:img', function(callback) {
     callback();
 });
 gulp.task('reset:img',gulp.series('delete:img', 'build:img'));
-
-
 /*
 *       ------------------
 *           Build PROJECT
@@ -472,7 +612,7 @@ gulp.task('delete:all',function(callback){
     };    
     callback();
 });
-gulp.task('build',gulp.series('delete:all', gulp.parallel('build:html','build:php','build:img','build:styles','build:js','build:fonts')));
+gulp.task('build',gulp.series('delete:all', gulp.parallel('build:html','build:php','build:img','build:styles','build:js','build:fonts','build:styles:zip','build:js:zip')));
 
 
 
@@ -560,12 +700,12 @@ gulp.task('server:exit', function(callback){
 gulp.task( 'watch:styles', function() {
     var currentIgnoreFile = '';
     if (o.typeCompilerStyles === 'less') {
-        gulp.watch( [ o.src.dev +'**/*.less', '!'+o.prefix+'*', '!node_modules/**/*.less', '!.template/**/*.less'], gulp.series('less', 'server:reload'));
+        gulp.watch( [ o.src.dev +'**/*.less', o.exeption, '!node_modules/**/*.less', '!.template/**/*.less'], gulp.series('less', 'server:reload'));
         currentIgnoreFile = o.src.pathDirectDevelop + o.less.pathCss + o.less.nameCSS;
     };
 
     //          watch for CSS
-    gulp.watch( [o.src.dev + '**/*.css', '!'+o.prefix+'*', '!node_modules/**/*.css', '!.template/**/*.css', '!'+ currentIgnoreFile ], gulp.series('server:reload') );    
+    gulp.watch( [o.src.dev + '**/*.css', o.exeption, '!node_modules/**/*.css', '!.template/**/*.css', '!'+ currentIgnoreFile ], gulp.series('server:reload') );    
  });
 
 /*
@@ -594,7 +734,7 @@ gulp.task('watch:fonts', function() {
 *       -----------------------
 */
 gulp.task('watch:js', function() {
-    gulp.watch( [ o.src.dev + o.jsDevDirect + '**/*.js', '!'+o.prefix+'*' ], gulp.series('server:reload') );
+    gulp.watch( [ o.src.dev + o.jsDevDirect + '**/*.js', o.exeption ], gulp.series('server:reload') );
 });
 
 /*
@@ -603,7 +743,7 @@ gulp.task('watch:js', function() {
 *       -----------------------
 */
 gulp.task('watch:php', function() {
-    gulp.watch( [o.src.dev + '**/*.php','!'+o.prefix+'*'], gulp.series('server:reload') );
+    gulp.watch( [o.src.dev + '**/*.php',o.exeption], gulp.series('server:reload') );
 });
 
 /*
@@ -612,7 +752,7 @@ gulp.task('watch:php', function() {
 *       -----------------------
 */
 gulp.task('watch:html', function() {
-    gulp.watch( [o.src.dev + '**/*.html','!'+o.prefix+'*'], gulp.series('server:reload') );
+    gulp.watch( [o.src.dev + '**/*.html',o.exeption], gulp.series('server:reload') );
 });
 
 /*
