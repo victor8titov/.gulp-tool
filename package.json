@@ -5,8 +5,7 @@
   "main": "Victor8titov@yandex.ru",
   "url": "https://github.com/victor8titov/.gulp-tool",
   "dependencies": {
-    "gulp-if": "^2.0.2",
-    "gulp.spritesmith": "^6.9.0"
+    "gulp-if": "^2.0.2"
   },
   "devDependencies": {
     "autoprefixer": "^9.5.0",
@@ -33,7 +32,8 @@
     "gulp-svg-sprite": "^1.5.0",
     "gulp-uglifyjs": "^0.6.2",
     "gulp-uncss": "^1.0.6",
-    "gulp-zip": "^4.2.0"
+    "gulp-zip": "^4.2.0",
+    "gulp.spritesmith": "^6.9.0",    
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

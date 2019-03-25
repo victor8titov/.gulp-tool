@@ -404,7 +404,7 @@ gulp.task('optim:img:min', function(callback) {
 
 });
 
-gulp.task('optim:img:spritePng', function (callback) {
+gulp.task('optim:img:sprite', function (callback) {
     var spriteData = 
         gulp.src( [o.src.dev+o.imgDirect+'spritePng/*.{png,jpeg,jpg}', o.exeption] ) // путь, откуда берем картинки для спрайта
             .pipe(spritesmith({
@@ -418,11 +418,12 @@ gulp.task('optim:img:spritePng', function (callback) {
             .pipe(plumber({errorHandler: notify.onError()}))
             .pipe(debug());
 
-    spriteData.img.pipe(gulp.dest(o.src.dev + o.imgDirect)); // путь, куда сохраняем картинку
-    spriteData.css.pipe(gulp.dest(o.src.dev+o.stylesDirect)); // путь, куда сохраняем стили
-    callback();
+    return spriteData.pipe( gulp.dest(function(file){
+        return ( file.extname === ".css" || file.extname === ".less" ) ? o.src.dev + o.stylesDirect :
+        o.src.dev + o.imgDirect;
+    }) ); // Сортируем поток css and less кладем в папку styles а sprite в папку img
 });
-gulp.task('optim:img:spriteSvg', function () {
+gulp.task('optim:img:sprite:svg', function () {
     return gulp.src( [o.src.dev+o.imgDirect+'spriteSvg/*.svg', o.exeption] ) // svg files for sprite
         .pipe(svgSprite({            
                 mode: {                    

@@ -46,9 +46,9 @@
     Праверка на валидность ошибки в консоли
 #### Optimization IMG            
 *   optim:img:min                   
-*   optim:img:spritePng   
+*   optim:img:sprite   
     Делает спрайт из файлов в img/spritePng. На выходе файл less и спрайт в папках styles and img              
-*   optim:img:spriteSvg                     
+*   optim:img:sprite:svg                     
     Делает спрайт из файлов в img/spriteSvg. На выходе файл less и спрайт в папках styles and img                     
 
 ### Build Tasks               
