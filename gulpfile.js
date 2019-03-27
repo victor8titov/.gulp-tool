@@ -71,9 +71,12 @@ const fs   = require('fs');
 //          Working with Streams
 const concat            = require('gulp-concat');
 //const newer =       require('gulp-newer'); // Слечает дату модификации файлов в директориях откуда и куда
-const cached            = require('gulp-cached');
+//const cached            = require('gulp-cached');
 //const remember =    require('gulp-remember');
-//const replace =      require('gulp-replace'); // Замена части данных в файле https://www.npmjs.com/package/gulp-replace
+const replace =      require('gulp-replace'); // Замена части данных в файле https://www.npmjs.com/package/gulp-replace
+
+//          Working with HTML and XML
+const cheerio = require('gulp-cheerio'); // https://www.npmjs.com/package/gulp-cheerio
 
 //          Working with Styles
 //const stylus =      require('gulp-stylus');
@@ -413,6 +416,7 @@ gulp.task('optim:img:sprite', function (callback) {
                 cssName: 'spritePng.less',
                 algorithm: 'binary-tree',
                 cssFormat: 'less',
+                //padding: 5,
 
             }))
             .pipe(plumber({errorHandler: notify.onError()}))
@@ -434,7 +438,7 @@ gulp.task('optim:img:sprite:svg', function () {
                             css: true,
                         }  
                     },                                      
-                },       
+                },                                               
             }
         ))
         .pipe(plumber({errorHandler: notify.onError()}))
@@ -447,6 +451,30 @@ gulp.task('optim:img:sprite:svg', function () {
             return file.extname === ".css" ? o.src.dev + o.stylesDirect :
             o.src.dev + o.imgDirect;
         }));
+});
+gulp.task('optim:img:sprite:svg:symbol', function () {
+    return gulp.src( [o.src.dev+o.imgDirect+'spriteSvg/*.svg', o.exeption] ) // svg files for sprite
+        // remove all fill and style declarations in out shapes
+        .pipe(cheerio({
+        run: function ($) {
+            $('[fill]').removeAttr('fill');
+            $('[style]').removeAttr('style');
+            }
+        }))
+        // cheerio plugin create unnecessary string '>', so replace it.
+        .pipe(replace('&gt;', '>'))
+        .pipe(svgSprite({            
+                mode: {                    
+                    symbol: {
+                        dest: '.',
+                        sprite: "sprite-symbol.svg",  //sprite file name                        
+                    },                                      
+                },                                               
+            }
+        ))
+        .pipe(plumber({errorHandler: notify.onError()}))
+        .pipe(debug())        
+        .pipe(gulp.dest(o.src.dev + o.imgDirect));
 });
 
 /*
