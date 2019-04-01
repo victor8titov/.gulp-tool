@@ -6,11 +6,11 @@ var o = {
     /*
     *   SETTING NAME FOLDER AND PATH
     */
-    nameDirectDevelop:  'develop',  //   Имя директории разработки                                      
+    nameDirectDevelop:  'develop/',  //   Имя директории разработки                                      
     pathDirectDevelop:  '../',      //   Путь до директории разработки
                                     //   относительно папки .gulp-tool
 
-    nameDirectPublic:   'public',   //   Имя директории сборки проекта
+    nameDirectPublic:   '',   //   Имя директории сборки проекта
     pathDirectPublic:   '../',      //   Путь до директории сборки проекта, 
                                     //   относительно папки .gulp-tool
     
@@ -48,9 +48,9 @@ o.less =    {
 //  Установка базовых директорий проекта
 o.src = {    
     //  Полный путь и имя директории разработки
-    dev: o.pathDirectDevelop + o.nameDirectDevelop + '/',  
+    dev: o.pathDirectDevelop + o.nameDirectDevelop,  
     // Полный путь и имя директории сборки готового проекта
-    build: o.pathDirectPublic + o.nameDirectPublic +'/',
+    build: o.pathDirectPublic + o.nameDirectPublic,
 }
 o.prefix = '.'; //  Префикс для папок генерируемые в разработке но не участвующие
                 //  в построение проекта и отслеживании изменений в watcher
@@ -168,7 +168,7 @@ gulp.task('init:styles', function() {
     .pipe(gulp.dest(o.src.dev + o.stylesDirect + 'libs'));
 });
 gulp.task('init:js', function() {
-    return  gulp.src('.template/js/**.*')
+    return  gulp.src('.template/js/**/*.*')
     .pipe(plumber({errorHandler: notify.onError()}))
     .pipe(debug())
     .pipe(gulp.dest(o.src.dev + o.jsDirect));
@@ -179,7 +179,13 @@ gulp.task('init:html', function() {
     .pipe(debug())
     .pipe(gulp.dest( o.src.dev ));
 });
-gulp.task('init', gulp.series('init:direct', 'init:styles', 'init:js', 'init:html' ));
+gulp.task('init:readme', function() {
+    return  gulp.src('.template/*.{md,txt}')
+    .pipe(plumber({errorHandler: notify.onError()}))
+    .pipe(debug())
+    .pipe(gulp.dest( o.src.dev ));
+})
+gulp.task('init', gulp.series('init:direct', 'init:styles', 'init:js', 'init:html' , 'init:readme' ));
 
 /*
 *   ----------------------------------------------------------
@@ -636,7 +642,7 @@ gulp.task('reset:img',gulp.series('delete:img', 'build:img'));
 */
 gulp.task('delete:all',function(callback){
     if ( !o.inOnePlace ) {
-        del.sync(o.src.build + '**', {force: true});
+        del.sync([o.src.build + '**', '!'+o.src.dev+'**'] , {force: true});
         console.log('Delete all in direct theme');
     };    
     callback();
