@@ -10,7 +10,7 @@ var o = {
     pathDirectDevelop:  '../',      //   Путь до директории разработки
                                     //   относительно папки .gulp-tool
 
-    nameDirectPublic:   '',   //   Имя директории сборки проекта
+    nameDirectPublic:   'public/',   //   Имя директории сборки проекта
     pathDirectPublic:   '../',      //   Путь до директории сборки проекта, 
                                     //   относительно папки .gulp-tool
     
@@ -140,8 +140,12 @@ gulp.task('init:direct', function(callback) {
         o.src.dev + o.jsDirect,
         o.src.dev + o.jsDirect +'libs/',
         o.src.dev + o.fontsDirect,
+        o.src.dev + o.fontsDirect + 'convert/',
         o.src.dev + o.tmpDirect,
-        o.src.dev + o.imgDirect,                
+        o.src.dev + o.imgDirect,
+        o.src.dev + o.imgDirect + 'spriteSvg',
+        o.src.dev + o.imgDirect + 'spritePng',       
+        o.src.dev + o.imgDirect,                       
         o.src.dev + o.modelDirect,
         o.src.build
     ];
@@ -303,7 +307,8 @@ gulp.task('optim:js:min', function(callback){
 *       ------------------------
 */
 gulp.task('optim:fonts:convert', function() {
-    return gulp.src( [o.src.dev + o.fontsDirect + '*.ttf', o.exeption] )
+    var prefix = '-convert-'+ Date.now();
+    return gulp.src( [o.src.dev + o.fontsDirect + 'convert/*.ttf', o.exeption] )
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
         .pipe(fontmin())
@@ -311,7 +316,7 @@ gulp.task('optim:fonts:convert', function() {
         //  если получаем из потока файл расширения .css то выполним сборку в один файл fonts.css
         .pipe(gulpif(function(file){
             return file.extname === ".css";
-        }, concat('fonts.css')))
+        }, concat('fonts'+prefix+'.css')))
         .pipe(debug())
         //  если файл взятый из потока имеет расширение .css то выплним модификацию в нем а именно
         //  отредактируем пути в файле с помощью плагина modifyCssUrls
