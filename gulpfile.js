@@ -31,7 +31,7 @@ var o = {
 /*
 *   SETTING STYLES
 */
-o.typeCompilerStyles = 'less',
+o.typeCompilerStyles = 'sass',
 
 //          LESS
 //  Файлы стилей для компиляции в CSS
@@ -45,6 +45,13 @@ o.less =    {
                 pathCss:  o.stylesDirect + '/',
             };  
 
+// SASS
+o.sass =    {
+    nameSass: 'general.scss',
+    pathSass: o.stylesDirect + '/',
+    nameCSS: 'main.css',
+    pathCss:  o.stylesDirect + '/',
+}; 
 //  Установка базовых директорий проекта
 o.src = {    
     //  Полный путь и имя директории разработки
@@ -81,6 +88,8 @@ const cheerio = require('gulp-cheerio'); // https://www.npmjs.com/package/gulp-c
 //          Working with Styles
 //const stylus =      require('gulp-stylus');
 const less              = require('gulp-less');
+const sass              = require('gulp-sass');
+sass.compiler           = require('node-sass');
 const cssnano           = require('gulp-cssnano');
 //const autoprefixer      = require('gulp-autoprefixer');
 const modifyCssUrls     = require('gulp-modify-css-urls'); // Замена урла в css файлах https://www.npmjs.com/package/gulp-modify-css-urls
@@ -219,6 +228,22 @@ gulp.task('less',function(){
     .pipe(sourcemaps.write('logfile'))
     .pipe(gulp.dest(o.src.dev + o.less.pathCss));
 });
+
+gulp.task('sass',function(){
+    return gulp.src(o.src.dev + o.sass.pathSass + o.sass.nameSass )
+    .pipe(sourcemaps.init())
+    .pipe(plumber({errorHandler: notify.onError()}))
+    .pipe(sass())
+    .pipe(debug())
+    .pipe(gulpif( function() {
+        if ( o.sass.nameCSS ) return true;
+        return false;
+    } , rename( o.sass.nameCSS ) ))
+    .pipe(debug())
+    .pipe(sourcemaps.write('logfile'))
+    .pipe(gulp.dest(o.src.dev + o.sass.pathCss));
+});
+
 gulp.task('optim:styles:delMin', function(callback){
     del.sync( [ o.src.dev + '**/*.min.css' , o.exeption], {force: true});
     console.log('-- Delete all *.min.css --');
@@ -742,6 +767,10 @@ gulp.task( 'watch:styles', function() {
     if (o.typeCompilerStyles === 'less') {
         gulp.watch( [ o.src.dev +'**/*.less', o.exeption, '!node_modules/**/*.less', '!.template/**/*.less'], gulp.series('less', 'server:reload'));
         currentIgnoreFile = o.src.pathDirectDevelop + o.less.pathCss + o.less.nameCSS;
+    };
+    if (o.typeCompilerStyles === 'sass') {
+        gulp.watch( [ o.src.dev +'**/*.{sass,scss}', o.exeption, '!node_modules/**/*.{sass,scss}', '!.template/**/*.{sass,scss}'], gulp.series('sass', 'server:reload'));
+        currentIgnoreFile = o.src.pathDirectDevelop + o.sass.pathCss + o.sass.nameCSS;
     };
 
     //          watch for CSS
