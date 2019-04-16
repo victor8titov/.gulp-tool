@@ -97,6 +97,7 @@ const csslint           = require('gulp-csslint'); // Инструмент по�
 const uncss             = require('gulp-uncss');
 const postcss           = require('gulp-postcss');
 const autoprefixer      = require('autoprefixer');
+const qcmq              = require('gulp-group-css-media-queries');
 
 //          Working with fonts
 const fontmin =     require('gulp-fontmin');
@@ -303,6 +304,21 @@ gulp.task('optim:styles:autoprefixer', function () {
         .pipe(postcss([ autoprefixer({
             browsers: ['cover 99.5%']
         }) ]))
+        //.pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest( o.src.dev + o.stylesDirect ));
+});
+
+gulp.task('optim:styles:media', function () {
+    var dir = o.prefix+'media-queries_'+ Date.now();
+    gulp.src( [o.src.dev + o.stylesDirect + '*.css', o.exeption] )    
+    .pipe(plumber({errorHandler: notify.onError()}))
+    .pipe(debug())
+    .pipe(gulp.dest(o.src.dev + o.stylesDirect + dir));
+    console.log('Backup OK!');
+
+    return gulp.src( [o.src.dev + o.stylesDirect + '*.css', o.exeption] )
+        //.pipe(sourcemaps.init())
+        .pipe(qcmq())
         //.pipe(sourcemaps.write('.'))
         .pipe(gulp.dest( o.src.dev + o.stylesDirect ));
 });
