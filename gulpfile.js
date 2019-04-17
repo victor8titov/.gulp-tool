@@ -31,7 +31,7 @@ var o = {
 /*
 *   SETTING STYLES
 */
-o.typeCompilerStyles = 'sass',
+o.typeCompilerStyles = 'less',
 
 //          LESS
 //  Файлы стилей для компиляции в CSS
@@ -245,12 +245,12 @@ gulp.task('sass',function(){
     .pipe(gulp.dest(o.src.dev + o.sass.pathCss));
 });
 
-gulp.task('optim:styles:delMin', function(callback){
+gulp.task('styles:delMin', function(callback){
     del.sync( [ o.src.dev + '**/*.min.css' , o.exeption], {force: true});
     console.log('-- Delete all *.min.css --');
     callback();
 });
-gulp.task('optim:styles:min', gulp.series( 'optim:styles:delMin', function() {
+gulp.task('styles:min', gulp.series( 'styles:delMin', function() {
     return gulp.src( [o.src.dev + '**/*.css', o.exeption] )
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
@@ -262,7 +262,7 @@ gulp.task('optim:styles:min', gulp.series( 'optim:styles:delMin', function() {
         .pipe(debug())     
         .pipe( gulp.dest(o.src.dev) );
 }));
-gulp.task('optim:styles:csslint', function(callback){
+gulp.task('styles:csslint', function(callback){
     gulp.src([o.src.dev + o.stylesDirect + '*.css', o.exeption])
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
@@ -272,26 +272,30 @@ gulp.task('optim:styles:csslint', function(callback){
     callback();
 });
 
+/*
+*       не работает надо разбираться
 // лучшее решение для оптимизации CSS файлов. Плагин
 // анализирует HTML код и находит все неиспользуемые и продублированные
 // стили
-gulp.task('optim:styles:uncss', function () {
-    var dir = o.prefix+'uncss_'+ Date.now();
+gulp.task('styles:uncss', function () {
+    var dir = o.prefix+'uncss_'+ ((Date.now()).toString()).slice(-6);
     gulp.src( [o.src.dev + o.stylesDirect + '*.css', o.exeption] )    
     .pipe(plumber({errorHandler: notify.onError()}))
     .pipe(debug())
     .pipe(gulp.dest(o.src.dev + o.stylesDirect + dir));
-    
+    console.log('\nИмя папки бекапа: '+dir +'\n');
     return gulp.src([o.src.dev + o.stylesDirect + '*.css', o.exeption])
         .pipe(uncss({
-            html: [ o.src.dev + '**/*.html', o.exeption ]
+            html: [o.src.dev + '*.html'],
+            //stylesheets  : ['styles/libs/bootstrap.css', 'styles/main.css'],
         }))
         .pipe(gulp.dest(o.src.dev + o.stylesDirect));
 });
+*/
 // один из самых полезных плагинов, который автоматически 
 // расставляет префиксы к CSS свойствам, исходя из статистики ca
 // Важно сказать, что Автопрефиксер это лишь один из множества дополнений в рамках проекта PostCSS от Злых Марсиан.
-gulp.task('optim:styles:autoprefixer', function () {
+gulp.task('styles:autoprefixer', function () {
     var dir = o.prefix+'autoprefixer_'+ Date.now();
     gulp.src( [o.src.dev + o.stylesDirect + '*.css', o.exeption] )    
     .pipe(plumber({errorHandler: notify.onError()}))
@@ -308,7 +312,7 @@ gulp.task('optim:styles:autoprefixer', function () {
         .pipe(gulp.dest( o.src.dev + o.stylesDirect ));
 });
 
-gulp.task('optim:styles:media', function () {
+gulp.task('styles:media', function () {
     var dir = o.prefix+'media-queries_'+ Date.now();
     gulp.src( [o.src.dev + o.stylesDirect + '*.css', o.exeption] )    
     .pipe(plumber({errorHandler: notify.onError()}))
@@ -328,7 +332,7 @@ gulp.task('optim:styles:media', function () {
 *       ----------------------------
 */
 
-gulp.task('optim:js:min', function(callback){
+gulp.task('js:min', function(callback){
     
 
     return gulp.src( [ o.src.dev + o.jsDirect +'*.js', o.exeption] )
@@ -347,7 +351,7 @@ gulp.task('optim:js:min', function(callback){
 *           Optimization Fonts
 *       ------------------------
 */
-gulp.task('optim:fonts:convert', function() {
+gulp.task('fonts:convert', function() {
     var prefix = '-convert-'+ Date.now();
     return gulp.src( [o.src.dev + o.fontsDirect + 'convert/*.ttf', o.exeption] )
         .pipe(plumber({errorHandler: notify.onError()}))
@@ -389,7 +393,7 @@ gulp.task('optim:fonts:convert', function() {
 *           Optimization Html
 *       ----------------------
 */
-gulp.task('optim:html:min', function() {
+gulp.task('html:min', function() {
     var dir = o.prefix+'htmlmin_'+ Date.now();
     gulp.src( [o.src.dev + '**/*.html', o.exeption] )    
     .pipe(plumber({errorHandler: notify.onError()}))
@@ -400,7 +404,7 @@ gulp.task('optim:html:min', function() {
       .pipe(htmlmin({ collapseWhitespace: true }))
       .pipe(gulp.dest(o.src.dev));
   });
-gulp.task('optim:html:hint', function(callback){
+gulp.task('html:hint', function(callback){
     return gulp.src( [o.src.dev + '**/*.html', o.exeption] )
         .pipe( htmlhint({
             "tagname-lowercase": true,
@@ -443,7 +447,7 @@ gulp.task('optim:html:hint', function(callback){
 *           Optimization IMG
 *       ----------------------
 */
-gulp.task('optim:img:min', function(callback) {
+gulp.task('img:min', function(callback) {
     var dir = o.prefix+ Date.now();
     gulp.src([o.src.dev+o.imgDirect+'**/*.{jpg,png,jpeg,gif,svg}', o.exeption])
     .pipe(plumber({errorHandler: notify.onError()}))
@@ -459,33 +463,41 @@ gulp.task('optim:img:min', function(callback) {
 
 });
 
-gulp.task('optim:img:sprite', function (callback) {
+gulp.task('img:sprite:png', function (callback) {
+    var prefix = ((Date.now()).toString()).slice(-6),
+        cssFormat = '';
+    if (o.typeCompilerStyles === 'less') cssFormat = 'less';
+    else if (o.typeCompilerStyles === 'sass') cssFormat = 'scss';
+    console.log('Формат таблицы стилей: '+ cssFormat);
+    console.log('\n Префих файлов: ' + prefix + '\n');
     var spriteData = 
         gulp.src( [o.src.dev+o.imgDirect+'spritePng/*.{png,jpeg,jpg}', o.exeption] ) // путь, откуда берем картинки для спрайта
             .pipe(spritesmith({
-                imgName: 'sprite.png',
-                imgPath: '../'+o.imgDirect+'sprite.png',
-                cssName: 'spritePng.less',
+                imgName: 'sprite_'+prefix+'.png',
+                imgPath: '../'+o.imgDirect+'sprite_'+prefix+'.png',
+                cssName: 'spritePng_'+ prefix +'.'+cssFormat,
                 algorithm: 'binary-tree',
-                cssFormat: 'less',
-                //padding: 5,
+                cssFormat: cssFormat,
+                padding: 2,
 
             }))
             .pipe(plumber({errorHandler: notify.onError()}))
             .pipe(debug());
 
     return spriteData.pipe( gulp.dest(function(file){
-        return ( file.extname === ".css" || file.extname === ".less" ) ? o.src.dev + o.stylesDirect :
+        return ( file.extname === ".css" || file.extname === "." + cssFormat ) ? o.src.dev + o.stylesDirect :
         o.src.dev + o.imgDirect;
     }) ); // Сортируем поток css and less кладем в папку styles а sprite в папку img
 });
-gulp.task('optim:img:sprite:svg', function () {
+gulp.task('img:sprite:svg', function () {
+    var prefix = ((Date.now()).toString()).slice(-6);
+    console.log('\n Префих файлов: ' + prefix + '\n');
     return gulp.src( [o.src.dev+o.imgDirect+'spriteSvg/*.svg', o.exeption] ) // svg files for sprite
         .pipe(svgSprite({            
                 mode: {                    
                     css: {
                         dest: '.',
-                        sprite: "sprite.svg",  //sprite file name
+                        sprite: "sprite_"+prefix+".svg",  //sprite file name
                         render: {
                             css: true,
                         }  
@@ -497,14 +509,16 @@ gulp.task('optim:img:sprite:svg', function () {
         .pipe(debug())
         .pipe(rename(function(path) {
             if (path.extname === ".css")
-            path.basename += 'SVG';
+            path.basename += 'SVG_'+ prefix;
+            if (path.extname === '.svg')
+            path.basename = 'sprite_'+ prefix;
         })) 
         .pipe(gulp.dest(function(file){
             return file.extname === ".css" ? o.src.dev + o.stylesDirect :
             o.src.dev + o.imgDirect;
         }));
 });
-gulp.task('optim:img:sprite:svg:symbol', function () {
+gulp.task('img:sprite:svg:symbol', function () {
     return gulp.src( [o.src.dev+o.imgDirect+'spriteSvg/*.svg', o.exeption] ) // svg files for sprite
         // remove all fill and style declarations in out shapes
         .pipe(cheerio({
@@ -600,7 +614,7 @@ gulp.task('reset:js', gulp.series('delete:js','build:js'));
 
 gulp.task('build:fonts', function(callback){
     if (  !o.inOnePlace ) {
-        return gulp.src([ o.src.dev + o.fontsDirect +'**/*.*', o.exeption])
+        return gulp.src([ o.src.dev + o.fontsDirect +'**/*.*', o.exeption, '!'+o.src.dev + o.fontsDirect + 'convert*/**/*.*'])
         .pipe(plumber({errorHandler: notify.onError()}))        
         .pipe(debug())     
         .pipe(gulp.dest(o.src.build + o.fontsDirect));
@@ -666,7 +680,7 @@ gulp.task('reset:php', gulp.series('delete:php','build:php'));
 */
 gulp.task('build:img', function(callback) {    
     if ( !o.inOnePlace ) {
-        return gulp.src([o.src.dev + o.imgDirect + '**/*.{jpg,png,jpeg,gif,svg}', o.exeption])
+        return gulp.src([o.src.dev + o.imgDirect + '**/*.{jpg,png,jpeg,gif,svg}', o.exeption, '!'+o.src.dev + o.imgDirect + 'sprite*/**/*.*'])
         .pipe(plumber({errorHandler: notify.onError()}))      
         .pipe(debug())
         .pipe(gulp.dest(o.src.build + o.imgDirect))
