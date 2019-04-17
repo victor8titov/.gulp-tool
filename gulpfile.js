@@ -695,6 +695,28 @@ gulp.task('delete:img', function(callback) {
     callback();
 });
 gulp.task('reset:img',gulp.series('delete:img', 'build:img'));
+
+/*
+*       ------------------
+*           Build Readme.md
+*       ------------------
+*/
+gulp.task('build:readme', function(callback) {
+    if ( !o.inOnePlace ) {
+        return gulp.src([o.src.dev + '**/*.md', o.exeption])
+        .pipe(plumber({errorHandler: notify.onError()}))
+        .pipe(debug())
+        .pipe(gulp.dest(o.src.build));    
+    }
+    callback();
+});
+gulp.task('delete:readme', function(callback) {
+    if ( !o.inOnePlace ) {
+        del.sync(o.src.build + '**/*.md', {force: true});        
+    }
+    callback();    
+});
+gulp.task('reset:readme', gulp.series('delete:readme','build:readme'));
 /*
 *       ------------------
 *           Build PROJECT
@@ -707,7 +729,7 @@ gulp.task('delete:all',function(callback){
     };    
     callback();
 });
-gulp.task('build',gulp.series('delete:all', gulp.parallel('build:html','build:php','build:img','build:styles','build:js','build:fonts','build:styles:zip','build:js:zip')));
+gulp.task('build',gulp.series('delete:all', gulp.parallel('build:html','build:php','build:img','build:styles','build:js','build:fonts','build:styles:zip','build:js:zip','build:readme')));
 
 
 
