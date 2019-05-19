@@ -250,11 +250,25 @@ gulp.task('styles:delMin', function(callback){
     console.log('-- Delete all *.min.css --');
     callback();
 });
-gulp.task('styles:min', gulp.series( 'styles:delMin', function() {
+gulp.task('styles:min:fresh', gulp.series( 'styles:delMin', function() {
     return gulp.src( [o.src.dev + '**/*.css', o.exeption] )
         .pipe(plumber({errorHandler: notify.onError()}))
         .pipe(debug())
         .pipe(cssnano())
+        .pipe(rename(function(path) {
+            if (path.basename.search(/min/) === -1)
+            path.basename += '.min'
+        }))   
+        .pipe(debug())     
+        .pipe( gulp.dest(o.src.dev) );
+}));
+
+gulp.task('styles:min', gulp.series( 'styles:delMin', function() {
+    return gulp.src( [o.src.dev + '**/*.css', o.exeption] )
+        .pipe(plumber({errorHandler: notify.onError()}))
+        .pipe(debug())
+        //  cssnano уберает префиксы к свойствам поэтому надстрока для установки префиксов
+        .pipe(cssnano({autoprefixer: { browsers:['last 50 versions'],}}))
         .pipe(rename(function(path) {
             if (path.basename.search(/min/) === -1)
             path.basename += '.min'

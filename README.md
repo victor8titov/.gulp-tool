@@ -20,35 +20,41 @@
 *   less   
     Компилятор less     
 
-*   optim:styles:delMin
+*   sass
+    Компилятор Sass
+
+*   styles:delMin
     Удаляетв все файлы с префиксом min.css       
 
-*   optim:styles:min     
-    Минификация всех файлов .css в проекте          
+*   styles:min     
+    Минификация всех файлов .css в проекте с добавление префиксов для браузеров         
 
-*   optim:styles:csslint    
+*   styles:min:fresh     
+    Минификация всех файлов .css в проекте. Удаляет все префиксы применять для проектов раотающих на свежих версиях.          
+
+*   styles:csslint    
     Проверка на ошибки в css файлах. Выводится в консоль            
 
-*   optim:styles:uncss      
+*   styles:uncss      
     Удаляет не задействованные свойтсва в html файлах.          
 
-*   optim:styles:autoprefixer      
+*   styles:autoprefixer      
     Расстановка префиксов в css файлах в папке styles           
 
 #### Optimization JavaScript   
-*   optim:js:min      
+*   js:min      
 #### Optimization Fonts   
-*   optim:fonts:convert  
+*   fonts:convert  
 #### Optimization Html    
-*   optim:html:min   
+*   html:min   
     Минификация получаем файл и бекап в папке prefix_time
-*   optim:html:hint   
+*   html:hint   
     Праверка на валидность ошибки в консоли
 #### Optimization IMG            
-*   optim:img:min                   
-*   optim:img:sprite   
+*   img:min                   
+*   img:sprite   
     Делает спрайт из файлов в img/spritePng. На выходе файл less и спрайт в папках styles and img              
-*   optim:img:sprite:svg                     
+*   img:sprite:svg                     
     Делает спрайт из файлов в img/spriteSvg. На выходе файл less и спрайт в папках styles and img                     
 
 ### Build Tasks               
