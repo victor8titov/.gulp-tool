@@ -1,18 +1,37 @@
-# !!!!name site!!!!!
+# name_saite
 
-##  Поддержка браузерами     
+## Описание 
 
+Адаптивная верстка под мобильные экраны, планшеты и десктопы.
 
-#### Desktop 
+        В связи с тем что данная страница является шаблонам. Некоторые ссылки могут не работать.
+## Стек технологий примененный при разработке шаблона
+*   [ECMAScript 5](http://es5.github.io/)
+*   [jQuery](https://jquery-docs.ru/)
+*   [Bootstrap 4](https://bootstrap-4.ru)
+*   [slider Slick](https://kenwheeler.github.io/slick/)
+*   [framework animatedScroll](https://github.com/victor8titov/jquery.animateScroll)
+*   [Less](https://less-lang.info/)
+*   [Sass](https://sass-scss.ru/guide/)
+*   [Masonry](https://masonry.desandro.com/)
+*   [Google Maps API](https://developers.google.com/maps/documentation/javascript/tutorial)
+*   [Wordpress](https://ru.wordpress.org/)
+*   [Flexboxgrid](https://github.com/kristoferjoseph/flexboxgrid)
+*   [flexbox-grid-less](https://github.com/victor8titov/flexbox-grid-less)
+*   [fancybox](http://fancyapps.com/fancybox/3/)
+
+##  Тесты    
+
+Протестировано на следующих браузерах. Указаны версии где шаблон работает без ограничений.
+
+### Desktop 
 |   IE  |   Edge    |   Firefox |   Chrome  |  Safari   |   Opera   |   
 |-------|-----------|-----------|-----------|-----------|-----------|  
 |  11   |           |    45.0   |    46.0   |           |    12.4   |
 |       |           |    65.0   |    72.0   |           |    58.0   |
 
-    
 
-
-#### Mobile 
+### Mobile 
 | IOS Safari | Opera Mobile | Android Browser | Chrome for Android | Firefox for android |
 |------------|--------------|-----------------|--------------------|---------------------|
 |            |     53.3     |                 |         72.0       |          65.0       |
@@ -44,3 +63,7 @@ Document checking completed. No errors or warnings to show.
 | Время окончания работы ЦП                 | 3,4 сек. |
 | Приблизительное время задержки при вводе  | 10 мс    |
 
+##     Скриншоты шаблона
+
+## Главная страница 
+![](model_database/main.gif)
