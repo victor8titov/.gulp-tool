@@ -45,6 +45,7 @@
 *   js:min      
 #### Optimization Fonts   
 *   fonts:convert  
+    Шрифты которые нужно сконвертировать во все поддерживаемые складываем в папку __convert__
 #### Optimization Html    
 *   html:min   
     Минификация получаем файл и бекап в папке prefix_time
