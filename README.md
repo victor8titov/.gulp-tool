@@ -53,12 +53,12 @@
     Праверка на валидность ошибки в консоли
 #### Optimization IMG            
 *   img:min                   
-*   img:sprite:png   
-    Делает спрайт из файлов в img/spritePng. На выходе файл less и спрайт в папках styles and img              
+*   img:sprite:png
+>    Делает спрайт из файлов в img/spritePng. На выходе файл less и спрайт в папках styles and img              
 *   img:sprite:svg                     
-    Делает спрайт из файлов в img/spriteSvg. На выходе файл css в папку styles и спрайт в папкy img. Дает стили со вставкой svg в background-image
+>    Делает спрайт из файлов в img/spriteSvg. На выходе файл css в папку styles и спрайт в папкy img. Дает стили со вставкой svg в background-image
 *   img:sprite:svg:symbol
-    Создает в папке img svg файл где все кортинкы сгруппированы с помощью symbol. Для прямой вставки в код или через `data:url`
+>    Создает в папке img svg файл где все кортинкы сгруппированы с помощью symbol. Для прямой вставки в код или через `data:url`
  ```
  <svg class="svg">
         <use xlink:href="picture.svg#github"></use>
